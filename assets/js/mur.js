@@ -16,13 +16,34 @@
   var rope = $('#rope');
   var climberG = $('#climber');
 
-  var PALETTE = [
-    ['#2d9cdb', '#a9dcf7', '#145f8a'], ['#27ae60', '#a6e8c0', '#14663a'],
-    ['#f2c94c', '#fff1bd', '#a77c12'], ['#9b51e0', '#dcbdf7', '#5c2196'],
-    ['#f4f4f4', '#ffffff', '#9a9a9a'], ['#2f3542', '#5b6478', '#151922'],
-    ['#ff6fa3', '#ffd2e3', '#b8336a'], ['#56ccf2', '#d5f3ff', '#1d84a8']
-  ];
-  var ROUTE = ['#ff6b4a', '#ffc6b6', '#b83516'];
+  // prises neutres (blanc, gris, anthracite) ; les autres prennent la couleur de la fiche voisine
+  var NEUTRAL = ['#f3f1ec', '#dcd9d2', '#a9adb4', '#3b4049'];
+  var cards = [];
+  var gradCache = {};
+
+  function hexRgb(h) { h = h.replace('#', ''); if (h.length === 3) h = h.replace(/./g, '$&$&'); var n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+  function mix(h, to, k) { var a = hexRgb(h), b = hexRgb(to); return '#' + a.map(function (v, i) { return ('0' + Math.round(v + (b[i] - v) * k).toString(16)).slice(-2); }).join(''); }
+  function grad(color) {
+    if (gradCache[color]) return gradCache[color];
+    var id = 'hg' + Object.keys(gradCache).length;
+    var g = svg('radialGradient', { id: id, cx: '35%', cy: '30%', r: '75%' });
+    g.appendChild(svg('stop', { offset: '0', 'stop-color': mix(color, '#ffffff', 0.55) }));
+    g.appendChild(svg('stop', { offset: '.45', 'stop-color': color }));
+    g.appendChild(svg('stop', { offset: '1', 'stop-color': mix(color, '#000000', 0.42) }));
+    defs.appendChild(g);
+    return (gradCache[color] = 'url(#' + id + ')');
+  }
+  function readCards() {
+    cards = Array.prototype.map.call(document.querySelectorAll('.topo-card'), function (c) {
+      var r = c.getBoundingClientRect();
+      return { mid: r.top + window.scrollY + r.height / 2, tag: getComputedStyle(c).getPropertyValue('--tag').trim() || '#ff6b4a' };
+    });
+  }
+  function tagAt(y) {
+    var best = null, bd = Infinity;
+    for (var i = 0; i < cards.length; i++) { var d = Math.abs(cards[i].mid - y); if (d < bd) { bd = d; best = cards[i]; } }
+    return best ? best.tag : '#ff6b4a';
+  }
 
   var W, VH, H, mobile, s, groundY, topY, axis;
   var route = [], draws = [], floor = [];
@@ -73,14 +94,8 @@
 
   function buildDefs() {
     defs.innerHTML = '';
-    PALETTE.concat([ROUTE]).forEach(function (c, i) {
-      var g = svg('radialGradient', { id: 'hg' + i, cx: '35%', cy: '30%', r: '75%' });
-      g.appendChild(svg('stop', { offset: '0', 'stop-color': c[1] }));
-      g.appendChild(svg('stop', { offset: '.45', 'stop-color': c[0] }));
-      g.appendChild(svg('stop', { offset: '1', 'stop-color': c[2] }));
-      defs.appendChild(g);
-    });
-    [['vol', '#e3c79c', '#a8845a'], ['vol2', '#3d4555', '#262c38'], ['vol3', '#f2c94c', '#c99a1e']].forEach(function (c) {
+    gradCache = {};
+    [['vol', '#e8d3b0', '#b39367'], ['vol2', '#c9ccd1', '#9a9fa7'], ['vol3', '#e8d3b0', '#b39367']].forEach(function (c) {
       var v = svg('linearGradient', { id: c[0], x1: '0', y1: '0', x2: '1', y2: '1' });
       v.appendChild(svg('stop', { offset: '0', 'stop-color': c[1] }));
       v.appendChild(svg('stop', { offset: '1', 'stop-color': c[2] }));
@@ -88,12 +103,12 @@
     });
   }
 
-  function addHold(frag, x, y, r, colorIdx, rand, isRoute) {
+  function addHold(frag, x, y, r, color, rand, isRoute) {
     var pad = 8, size = r * 2 + pad * 2;
     var squash = 0.55 + rand() * 0.45;
     var node = svg('svg', { class: 'hold' + (isRoute ? ' on-route' : ''), width: f(size), height: f(size), viewBox: f(-r - pad) + ' ' + f(-r - pad) + ' ' + f(size) + ' ' + f(size) });
     node.style.transform = 'translate(' + f(x - r - pad) + 'px,' + f(y - r - pad) + 'px) rotate(' + ((rand() * 360) | 0) + 'deg)';
-    node.appendChild(svg('path', { d: blobPath(r, 7, 0.45, rand, squash), fill: 'url(#hg' + colorIdx + ')' }));
+    node.appendChild(svg('path', { d: blobPath(r, 7, 0.45, rand, squash), fill: grad(color) }));
     node.appendChild(svg('circle', { cx: f(r * 0.08), cy: '0', r: f(Math.max(2.4, r * 0.13)), fill: '#1b1d22', opacity: '.8' }));
     if (isRoute) node.appendChild(svg('ellipse', { cx: f(-r * 0.15), cy: f(-r * squash * 0.35), rx: f(r * 0.5), ry: f(r * 0.22), fill: '#fff', opacity: '.35' }));
     frag.appendChild(node);
@@ -136,6 +151,7 @@
     topY = anchor ? anchor.getBoundingClientRect().top + window.scrollY + 46 : 120;
 
     buildDefs();
+    readCards();
     holdsEl.innerHTML = '';
     route = []; draws = [];
     var frag = document.createDocumentFragment();
@@ -159,7 +175,9 @@
       var x = rand() * W;
       if (Math.abs(x - routeX(y)) < 70 * s) continue;
       var r = (mobile ? 8 : 11) + Math.pow(rand(), 2) * (mobile ? 18 : 30);
-      addHold(frag, x, y, r, (rand() * PALETTE.length) | 0, rand, false);
+      var tag = tagAt(y), pick = rand();
+      var col = pick < 0.42 ? mix(tag, pick < 0.2 ? '#ffffff' : '#000000', rand() * 0.3) : NEUTRAL[(rand() * NEUTRAL.length) | 0];
+      addHold(frag, x, y, r, col, rand, false);
     }
 
     // la voie : une prise à gauche, une à droite, espacées selon la taille du grimpeur
@@ -168,7 +186,7 @@
     for (var yy = groundY - 40 * s; yy > topY + 10; yy -= step * (0.8 + rand() * 0.4)) {
       side = -side;
       var hx = routeX(yy) + side * (D.shoulder + 10 * s + rand() * 12 * s);
-      addHold(frag, hx, yy, (7 + rand() * 4.5) * s, PALETTE.length, rand, true);
+      addHold(frag, hx, yy, (7 + rand() * 4.5) * s, tagAt(yy), rand, true);
       route.push({ x: hx, y: yy, side: side });
     }
 
