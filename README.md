@@ -1,31 +1,32 @@
-# Portfolio — Raphaël Deroo
+# Le mur — portfolio de Raphaël Deroo
+
+Un portfolio qui se grimpe : la page s'ouvre au pied d'un mur d'escalade et se lit
+en scrollant **vers le haut**. Un grimpeur monte avec toi, de prise en prise, encordé,
+jusqu'au sommet (le contact).
 
 Site statique (HTML/CSS/JS, sans framework ni build).
 
 ```
-index.html            page principale (qui suis-je, projets, compétences, contact)
-cv.html               visionneuse du CV
-assets/css/style.css  styles (thème clair/sombre automatique)
-assets/js/main.js     boutons copier + animations au scroll
-assets/cv/            CV en PDF + aperçu PNG (affiché sur mobile)
+index.html            le mur (contenu écrit du sol vers le sommet, affiché en colonne inversée)
+assets/css/mur.css    styles du mur
+assets/js/mur.js      prises générées, grimpeur (cinématique inverse), corde, magnésie, altimètre
+cv.html               visionneuse du CV (utilise encore style.css et main.js)
+assets/cv/            CV en PDF + aperçu PNG
 ```
 
-## Voir le site en local
+## Comment ça marche
+- Les prises, volumes et dégaines sont générés en SVG avec un hasard reproductible
+  (même mur à chaque visite), puis regénérés si la largeur change.
+- Le bassin du grimpeur suit le défilement ; chaque main et chaque pied choisit la prise
+  de la voie la plus haute à sa portée, et la position des coudes et genoux est calculée
+  par cinématique inverse à deux segments.
+- La corde part du baudrier et passe dans les dégaines déjà dépassées.
+- `prefers-reduced-motion` coupe les animations.
 
-Ouvrir `index.html` dans le navigateur, ou lancer un petit serveur :
+## Voir le site en local
 
 ```
 python -m http.server 8000
 ```
 
 puis aller sur http://localhost:8000
-
-## Mettre à jour le CV
-
-Remplacer `assets/cv/CV_Raphael_Deroo.pdf` par la nouvelle version (même nom de fichier),
-et régénérer l'aperçu `assets/cv/CV_Raphael_Deroo.png` (export en image de la page 1).
-
-## Mise en ligne
-
-Le site fonctionne tel quel sur n'importe quel hébergeur statique
-(GitHub Pages, Vercel, Netlify…) : il suffit de publier le dossier à la racine.
