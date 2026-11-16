@@ -4,15 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Raphaël Deroo — Le mur</title>
-  <meta name="description" content="Portfolio de Raphaël Deroo, développeur et étudiant en 3e année de BUT Informatique à Calais. Un mur d'escalade à grimper en scrollant vers le haut.">
+  <meta name="description" content="Portfolio de Raphaël Deroo, étudiant en 3e année de BUT Informatique, spécialisation développement d'applications. Un mur d'escalade à grimper en scrollant vers le haut.">
   <meta property="og:title" content="Raphaël Deroo — Le mur">
   <meta property="og:description" content="Un portfolio à grimper : projets, compétences et contact de Raphaël Deroo.">
   <meta property="og:type" content="website">
-  <meta name="theme-color" content="#14161b">
+  <meta name="theme-color" content="#5d636d">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M14 40c-4-12 6-26 20-27 13-1 22 10 18 22-3 10-14 16-24 14-7-1-12-4-14-9z' fill='%23ff6b4a'/%3E%3Ccircle cx='33' cy='32' r='5' fill='%2314161b'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&family=Permanent+Marker&family=JetBrains+Mono:wght@500&display=swap">
   <link rel="stylesheet" href="assets/css/mur.css">
   <script>
     // On arrive au pied du mur : la page s'ouvre en bas.
@@ -55,7 +55,8 @@
   <div class="rail-track" aria-hidden="true"><div class="rail-fill" id="railFill"></div></div>
 </nav>
 
-<!-- Le contenu est écrit du sol vers le sommet : la colonne est inversée à l'affichage. -->
+<!-- Le contenu est écrit du sol vers le sommet : la colonne est inversée à l'affichage.
+     Chaque fiche est une fiche de voie vissée au mur, avec son scotch de couleur et sa cotation au marqueur. -->
 <main class="route" id="route">
 
   <section class="pitch pitch-start" id="depart" data-grade="4">
@@ -63,9 +64,9 @@
       <div class="pad pad-a"></div><div class="pad pad-b"></div><div class="pad pad-c"></div>
     </div>
     <div class="hero">
-      <p class="hero-kicker">Portfolio · Calais</p>
+      <p class="hero-kicker">Portfolio</p>
       <h1 class="hero-title"><span>Raphaël</span><span>Deroo</span></h1>
-      <p class="hero-sub">Développeur web &amp; mobile, en 3ᵉ année de BUT Informatique. Et grimpeur.</p>
+      <p class="hero-sub">Étudiant en 3ᵉ année de BUT Informatique, spécialisation développement d'applications. Et grimpeur.</p>
       <p class="hero-hint" id="hint">
         <span class="hint-arrow" aria-hidden="true"></span>
         <span>Scrolle <strong>vers le haut</strong> pour grimper</span>
@@ -75,97 +76,88 @@
 
   <section class="pitch" id="qui" data-grade="5a">
     <article class="topo-card side-r reveal" style="--tag:#f2c94c">
-      <header class="card-head"><span class="grade">5a</span><span class="card-route">Voie n°1</span></header>
+      <header class="card-head"><span class="tape">5a</span><span class="card-route">Voie n°1</span></header>
       <h2>Qui suis-je</h2>
-      <p class="lead">Je m'appelle Raphaël. Je suis en 3ᵉ année de BUT Informatique à l'IUT du Littoral, à Calais, et j'aime construire des choses qui servent vraiment&nbsp;: une plateforme pour des lycéens, un chatbot qui parle SQL, une appli de messagerie.</p>
+      <p class="lead">Je m'appelle Raphaël. Je suis en 3ᵉ année de BUT Informatique à l'IUT du Littoral, spécialisation développement d'applications, et j'aime construire des choses qui servent vraiment&nbsp;: une plateforme pour des lycéens, un chatbot qui parle SQL, une appli de messagerie.</p>
       <p>En dehors du code, je grimpe. L'escalade m'a appris à lire une voie avant de partir, à avancer prise par prise, et à ne pas lâcher quand ça bloque. C'est à peu près comme ça que je code.</p>
-      <p>J'aime aussi expliquer ce que je fais&nbsp;: pendant mon stage, j'ai aidé des élèves en TP et corrigé des copies.</p>
-      <ul class="chips" aria-label="Centres d'intérêt">
-        <li>Escalade</li><li>Dessin</li><li>Musique</li><li>Cuisine</li><li>Dev pour le plaisir</li>
-      </ul>
-      <p class="callout"><span class="dot" aria-hidden="true"></span><span>Je cherche un stage à partir de <strong>mars 2027</strong>&nbsp;: 14 à 16 semaines, ou 8 semaines.</span></p>
+      <p>J'aime aussi expliquer ce que je fais&nbsp;: pendant mon stage, j'ai aidé des élèves en TP et corrigé des copies. Le reste du temps, je dessine, j'écoute de la musique, je cuisine, et je code pour le plaisir.</p>
+      <p class="note">Je cherche un stage à partir de <strong>mars 2027</strong>&nbsp;: 14 à 16 semaines, ou 8 semaines.</p>
     </article>
   </section>
 
   <section class="pitch" id="experience" data-grade="5c">
     <article class="topo-card side-l reveal" style="--tag:#56ccf2">
-      <header class="card-head"><span class="grade">5c</span><span class="card-route">Voie n°2</span></header>
+      <header class="card-head"><span class="tape">5c</span><span class="card-route">Voie n°2</span></header>
       <h2>Expérience</h2>
-      <div class="xp">
-        <p class="xp-when">Avril – juin 2026 · 8 semaines</p>
-        <h3>Stagiaire développeur web &amp; assistant pédagogique</h3>
-        <p class="xp-where">Lycée Pierre de Coubertin, Calais</p>
-        <ul class="ticks">
-          <li>Conception et développement <strong>fullstack</strong> d'une plateforme web pédagogique&nbsp;: API REST en Node.js, TypeScript et Express, interface en Vue.js 3, base PostgreSQL avec Prisma.</li>
-          <li>Un <strong>éditeur Python</strong> qui tourne directement dans le navigateur (Pyodide, WebAssembly), et des cours en Markdown enrichi (KaTeX, highlight.js).</li>
-          <li>Côté pédagogie&nbsp;: aide aux élèves en TP, correction de copies, jury de grands oraux blancs et d'épreuves pratiques de NSI.</li>
-        </ul>
-        <ul class="stack"><li>Node.js</li><li>TypeScript</li><li>Express</li><li>Vue.js 3</li><li>PostgreSQL</li><li>Prisma</li><li>Pyodide</li></ul>
-      </div>
+      <p class="xp-when">Avril – juin 2026 · 8 semaines</p>
+      <h3>Stagiaire développeur web &amp; assistant pédagogique</h3>
+      <p class="xp-where">Lycée Pierre de Coubertin, Calais</p>
+      <ul class="ticks">
+        <li>Conception et développement <strong>fullstack</strong> d'une plateforme web pédagogique&nbsp;: API REST en Node.js, TypeScript et Express, interface en Vue.js 3, base PostgreSQL avec Prisma.</li>
+        <li>Un <strong>éditeur Python</strong> qui tourne directement dans le navigateur (Pyodide, WebAssembly), et des cours en Markdown enrichi (KaTeX, highlight.js).</li>
+        <li>Côté pédagogie&nbsp;: aide aux élèves en TP, correction de copies, jury de grands oraux blancs et d'épreuves pratiques de NSI.</li>
+      </ul>
+      <p class="stack">Node.js · TypeScript · Express · Vue.js 3 · PostgreSQL · Prisma · Pyodide</p>
     </article>
   </section>
 
   <section class="pitch pitch-tall" id="projets" data-grade="6a+">
-    <header class="pitch-title side-l reveal">
-      <span class="grade grade-lg" style="--tag:#6fcf97">6a+</span>
+    <header class="topo-card pitch-title side-l reveal" style="--tag:#6fcf97">
+      <header class="card-head"><span class="tape">6a+</span><span class="card-route">Voie n°3</span></header>
       <h2>Projets</h2>
       <p>Quatre prises, quatre projets.</p>
     </header>
 
     <article class="topo-card proj side-r reveal" style="--tag:#6fcf97">
-      <header class="card-head"><span class="grade">IA</span><span class="card-route">BUT 3 · équipe de 4</span></header>
+      <header class="card-head"><span class="tape">IA</span><span class="card-route">BUT 3 · équipe de 4</span></header>
       <h3>NaturSQL</h3>
       <p>Pose une question en français, obtiens la réponse de la base de données. Un LLM local (Ollama) traduit la question en requête SQL sur une base MariaDB. J'ai développé l'authentification et la gestion de profil&nbsp;: mots de passe sécurisés et migration de schéma.</p>
-      <ul class="stack"><li>Python</li><li>Gradio</li><li>Ollama</li><li>MariaDB</li><li>Docker</li></ul>
+      <p class="stack">Python · Gradio · Ollama · MariaDB · Docker</p>
     </article>
 
     <article class="topo-card proj side-l reveal" style="--tag:#bb6bd9">
-      <header class="card-head"><span class="grade">Web</span><span class="card-route">BUT 2 · en équipe</span></header>
+      <header class="card-head"><span class="tape">Web</span><span class="card-route">BUT 2 · en équipe</span></header>
       <h3>Chess Predict</h3>
       <p>Prédire l'issue d'une partie d'échecs à partir de l'historique des deux joueurs. J'ai fait le front-end&nbsp;: les graphiques de probabilités (Chart.js) et le visualiseur de parties (chess.js), branchés sur une API Node.js et Express.</p>
-      <ul class="stack"><li>PHP</li><li>TypeScript</li><li>Node.js</li><li>Chart.js</li><li>PostgreSQL</li></ul>
+      <p class="stack">PHP · TypeScript · Node.js · Chart.js · PostgreSQL</p>
     </article>
 
     <article class="topo-card proj side-r reveal" style="--tag:#56ccf2">
-      <header class="card-head"><span class="grade">Mobile</span><span class="card-route">BUT · équipe de 3</span></header>
+      <header class="card-head"><span class="tape">Mobile</span><span class="card-route">BUT · équipe de 3</span></header>
       <h3>PrivateMessaging</h3>
       <p>Une messagerie privée sur mobile&nbsp;: on s'associe en scannant un QR code. J'ai fait l'écran d'accueil, la navigation entre les pages (go_router) et l'écran de discussion, qui envoie et reçoit les messages via une API REST.</p>
-      <ul class="stack"><li>Flutter</li><li>Dart</li><li>go_router</li><li>API REST</li></ul>
+      <p class="stack">Flutter · Dart · go_router · API REST</p>
     </article>
 
     <article class="topo-card proj side-l reveal" style="--tag:#ff6b4a">
-      <header class="card-head"><span class="grade">Perso</span><span class="card-route">Le site que tu grimpes</span></header>
+      <header class="card-head"><span class="tape">Perso</span><span class="card-route">Le site que tu grimpes</span></header>
       <h3>Ce mur</h3>
       <p>Mon portfolio, sans framework&nbsp;: HTML, CSS et JavaScript. Les prises sont générées, le grimpeur calcule la position de ses bras et de ses jambes à chaque image, et la corde passe dans les dégaines au fil de la montée.</p>
-      <ul class="stack"><li>HTML</li><li>CSS</li><li>JavaScript</li><li>SVG</li><li>Canvas</li></ul>
+      <p class="stack">HTML · CSS · JavaScript · SVG · Canvas</p>
     </article>
   </section>
 
   <section class="pitch" id="competences" data-grade="6b">
-    <article class="topo-card side-r reveal" style="--tag:#bb6bd9">
-      <header class="card-head"><span class="grade">6b</span><span class="card-route">Voie n°4 · une couleur par famille</span></header>
+    <article class="topo-card logbook side-r reveal" style="--tag:#bb6bd9">
+      <header class="card-head"><span class="tape">6b</span><span class="card-route">Voie n°4</span></header>
       <h2>Compétences</h2>
-      <div class="skillset">
-        <div class="skill-row" style="--c:#56ccf2"><h3>Langages</h3>
-          <ul class="holds"><li>Python</li><li>TypeScript</li><li>JavaScript</li><li>Java</li><li>C</li><li>C++</li><li>F#</li><li>PHP</li><li>Dart</li><li>HTML / CSS</li></ul></div>
-        <div class="skill-row" style="--c:#6fcf97"><h3>Web &amp; mobile</h3>
-          <ul class="holds"><li>Node.js</li><li>Express</li><li>Vue.js 3</li><li>Prisma</li><li>API REST</li><li>Flutter</li><li>Gradio</li></ul></div>
-        <div class="skill-row" style="--c:#f2c94c"><h3>Données</h3>
-          <ul class="holds"><li>PostgreSQL</li><li>MariaDB</li><li>SQL</li><li>MongoDB</li><li>Redis</li><li>Neo4j</li></ul></div>
-        <div class="skill-row" style="--c:#bb6bd9"><h3>Outils</h3>
-          <ul class="holds"><li>Git / GitHub</li><li>Docker</li><li>Tests unitaires</li><li>Agile (sprints)</li><li>VS Code</li></ul></div>
-        <div class="skill-row" style="--c:#ff6b4a"><h3>IA</h3>
-          <ul class="holds"><li>LLM en local (Ollama)</li><li>Réseaux de neurones</li><li>PyTorch</li></ul></div>
-        <div class="skill-row" style="--c:#e0e0e0"><h3>Réseau &amp; langues</h3>
-          <ul class="holds"><li>TCP/IP</li><li>VLAN</li><li>Routage</li><li>Cisco</li><li>Anglais B2</li><li>Espagnol B2</li></ul></div>
-      </div>
+      <p class="logbook-intro">Mon carnet de voies&nbsp;: une couleur de prise par famille, comme en salle.</p>
+      <dl class="log">
+        <div class="log-row" style="--c:#2d9cdb"><dt>Langages</dt><dd>Python, TypeScript, JavaScript, Java, C, C++, F#, PHP, Dart, HTML / CSS</dd></div>
+        <div class="log-row" style="--c:#27ae60"><dt>Web &amp; mobile</dt><dd>Node.js, Express, Vue.js 3, Prisma, API REST, Flutter, Gradio</dd></div>
+        <div class="log-row" style="--c:#f2c94c"><dt>Données</dt><dd>PostgreSQL, MariaDB, SQL, MongoDB, Redis, Neo4j</dd></div>
+        <div class="log-row" style="--c:#9b51e0"><dt>Outils</dt><dd>Git et GitHub, Docker, tests unitaires, méthode agile (sprints), VS Code</dd></div>
+        <div class="log-row" style="--c:#ff6b4a"><dt>IA</dt><dd>LLM en local (Ollama), réseaux de neurones, PyTorch</dd></div>
+        <div class="log-row" style="--c:#2f3542"><dt>Réseau</dt><dd>TCP/IP, IPv4 / IPv6, VLAN, routage statique et dynamique, Cisco</dd></div>
+        <div class="log-row" style="--c:#f4f4f4"><dt>Langues</dt><dd>Anglais B2, espagnol B2</dd></div>
+      </dl>
     </article>
   </section>
 
   <section class="pitch pitch-top" id="sommet" data-grade="6c">
     <div class="anchor" aria-hidden="true"><span></span><span></span></div>
     <article class="topo-card summit side-r reveal" style="--tag:#ff6b4a">
-      <header class="card-head"><span class="grade">6c</span><span class="card-route">Sommet · <span id="summitAlt">20</span> m</span></header>
+      <header class="card-head"><span class="tape">6c</span><span class="card-route">Sommet · 20 m</span></header>
       <h2>Tu es au sommet&nbsp;!</h2>
       <p class="lead">Merci d'avoir grimpé jusqu'ici. Si mon profil t'intéresse, pour un stage ou un projet, écris-moi.</p>
       <div class="contacts">

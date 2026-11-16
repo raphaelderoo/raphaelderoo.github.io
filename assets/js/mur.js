@@ -163,7 +163,7 @@
     }
 
     // la voie : une prise à gauche, une à droite, espacées selon la taille du grimpeur
-    var step = (D.upper + D.fore) * 0.6;
+    var step = Math.max((D.upper + D.fore) * 0.55, mobile ? 34 : 0);
     var side = 1;
     for (var yy = groundY - 40 * s; yy > topY + 10; yy -= step * (0.8 + rand() * 0.4)) {
       side = -side;
@@ -251,9 +251,17 @@
     for (var i = 0; i < list.length; i++) {
       var h = list[i];
       if (h.side !== L.side) continue;
-      if (L.hand) { if (h.y < rootY - reach * 0.95 || h.y > rootY - reach * 0.1) continue; }
+      if (L.hand) { if (h.y < rootY - reach * 1.02 || h.y > rootY - reach * 0.12) continue; }
       else if (h.y < rootY + reach * 0.5 || h.y > rootY + reach * 0.98) continue;
       if (!best || h.y < best.y) best = h;
+    }
+    if (!best && L.hand) {
+      // rien à portée : la main se tend vers la prise suivante, au-dessus
+      for (var j = 0; j < list.length; j++) {
+        var q = list[j];
+        if (q.side !== L.side || q.y > rootY - reach * 1.02) continue;
+        if (!best || q.y > best.y) best = q;
+      }
     }
     return best;
   }
@@ -333,13 +341,18 @@
       var L = limbs[k];
       var rootY = L.hand ? shY0 : hipY0;
       var rootX = body.x + L.side * (L.hand ? D.shoulder : D.hip);
-      var want = candidates(L, rootY, D) || L.goal || nearest(L, rootX, rootY);
+      // les mains visent depuis là où le corps va arriver : elles partent devant, le corps suit
+      var planY = L.hand ? Math.min(shY0, targetY - D.torso) : hipY0;
+      var want = candidates(L, planY, D) || candidates(L, rootY, D) || L.goal || nearest(L, rootX, rootY);
       if (!L.goal || !body.ready) { L.goal = want; L.end = { x: want.x, y: want.y }; L.t = 1; return; }
       var reach = L.hand ? D.upper + D.fore : legLen;
       var gx = L.goal.x - rootX, gy = L.goal.y - rootY;
       var tooFar = Math.sqrt(gx * gx + gy * gy) > reach * 1.08;
       if (want === L.goal) return;
       if (tooFar) { start(L, want, 0.14); return; }
+      // une main ne reste jamais sous l'épaule : sur un mur vertical, on grimpe bras en l'air
+      var other = limbs[k === 'L' ? 'R' : (k === 'R' ? 'L' : k)];
+      if (L.hand && L.goal.y > rootY - reach * 0.25 && L.t >= 1 && (other.t >= 1 || other.t > 0.5)) { start(L, want, 0.24); return; }
       L.next = want;
       var gain = Math.abs(want.y - L.goal.y);
       if (gain > bestGain) { bestGain = gain; bestK = k; }
