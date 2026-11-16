@@ -133,6 +133,9 @@ img, svg { display: block; }
   padding: 22vh 0;
   display: flex; flex-direction: column; justify-content: center; gap: 16vh;
 }
+/* on grimpe de bas en haut : le titre « Projets » se lit en premier, donc en bas,
+   puis les projets s'enchaînent au-dessus */
+.pitch-tall { flex-direction: column-reverse; }
 
 /* les fiches se placent de part et d'autre de la voie */
 .side-l, .side-r { width: min(var(--card-max), calc(var(--rx) - var(--corr) - var(--gut))); }
