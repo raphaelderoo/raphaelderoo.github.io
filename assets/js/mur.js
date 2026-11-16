@@ -3,7 +3,7 @@
 (function () {
   'use strict';
 
-  var $ = function (s) { return document.querySelector(s); };
+  var $ = function (q) { return document.querySelector(q); };
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var SVGNS = 'http://www.w3.org/2000/svg';
   var WALL_METERS = 20;
@@ -13,26 +13,22 @@
   var light = $('#light');
   var canvas = $('#chalk');
   var ctx = canvas.getContext('2d');
-  var el = {
-    rope: $('#rope'), torso: $('#torso'), head: $('#head'), hair: $('#hair'),
-    harness: $('#harness'), bag: $('#chalkbag'),
-    armL: $('#armL'), armR: $('#armR'), legL: $('#legL'), legR: $('#legR')
-  };
+  var rope = $('#rope');
+  var climberG = $('#climber');
 
-  // Couleurs des prises (comme les voies d'une salle)
   var PALETTE = [
-    ['#56ccf2', '#bfefff', '#1b7ea6'], ['#6fcf97', '#c9f5da', '#2b8a55'],
-    ['#f2c94c', '#fff1bd', '#b2861a'], ['#bb6bd9', '#ecc7fa', '#7a2f98'],
-    ['#e0e0e0', '#ffffff', '#8d8d8d'], ['#2f3a4f', '#5b6a88', '#161c28'],
-    ['#ff8fb1', '#ffd6e3', '#c0466c']
+    ['#2d9cdb', '#a9dcf7', '#145f8a'], ['#27ae60', '#a6e8c0', '#14663a'],
+    ['#f2c94c', '#fff1bd', '#a77c12'], ['#9b51e0', '#dcbdf7', '#5c2196'],
+    ['#f4f4f4', '#ffffff', '#9a9a9a'], ['#2f3542', '#5b6478', '#151922'],
+    ['#ff6fa3', '#ffd2e3', '#b8336a'], ['#56ccf2', '#d5f3ff', '#1d84a8']
   ];
-  var ROUTE = ['#ff6b4a', '#ffc2b0', '#c23a1b'];
+  var ROUTE = ['#ff6b4a', '#ffc6b6', '#b83516'];
 
-  var W, VH, H, mobile, s, groundY, topY;
+  var W, VH, H, mobile, s, groundY, topY, axis;
   var route = [], draws = [], floor = [];
   var lastW = 0, lastVH = 0;
 
-  // ---------- Hasard reproductible ----------
+  // ---------- outils ----------
   function rng(seed) {
     return function () {
       seed |= 0; seed = seed + 0x6D2B79F5 | 0;
@@ -41,14 +37,23 @@
       return ((t ^ t >>> 14) >>> 0) / 4294967296;
     };
   }
+  function svg(tag, attrs) {
+    var n = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    return n;
+  }
+  function f(n) { return n.toFixed(1); }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
 
+  // l'axe de la voie : même valeur que --rx dans le CSS
+  function axisRatio() { return W <= 760 ? 0.13 : (W <= 1100 ? 0.17 : 0.44); }
   function routeX(y) {
-    var base = W * (mobile ? 0.14 : 0.25);
-    var amp = W * (mobile ? 0.03 : 0.045);
-    return base + Math.sin(y / 430) * amp + Math.sin(y / 170 + 1.3) * amp * 0.35;
+    var amp = W * (mobile ? 0.025 : (W <= 1100 ? 0.03 : 0.028));
+    return axis + Math.sin(y / 520) * amp + Math.sin(y / 190 + 1.3) * amp * 0.35;
   }
 
-  // ---------- Formes ----------
+  // ---------- formes ----------
   function blobPath(r, n, irr, rand, squash) {
     var pts = [], i;
     for (i = 0; i < n; i++) {
@@ -59,18 +64,11 @@
     var d = '';
     for (i = 0; i < n; i++) {
       var p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n], p3 = pts[(i + 2) % n];
-      if (i === 0) d += 'M' + p1[0].toFixed(1) + ' ' + p1[1].toFixed(1);
-      var c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
-      var c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
-      d += 'C' + c1x.toFixed(1) + ' ' + c1y.toFixed(1) + ' ' + c2x.toFixed(1) + ' ' + c2y.toFixed(1) + ' ' + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1);
+      if (i === 0) d += 'M' + f(p1[0]) + ' ' + f(p1[1]);
+      d += 'C' + f(p1[0] + (p2[0] - p0[0]) / 6) + ' ' + f(p1[1] + (p2[1] - p0[1]) / 6) + ' ' +
+        f(p2[0] - (p3[0] - p1[0]) / 6) + ' ' + f(p2[1] - (p3[1] - p1[1]) / 6) + ' ' + f(p2[0]) + ' ' + f(p2[1]);
     }
     return d + 'Z';
-  }
-
-  function svg(tag, attrs) {
-    var n = document.createElementNS(SVGNS, tag);
-    for (var k in attrs) n.setAttribute(k, attrs[k]);
-    return n;
   }
 
   function buildDefs() {
@@ -82,108 +80,102 @@
       g.appendChild(svg('stop', { offset: '1', 'stop-color': c[2] }));
       defs.appendChild(g);
     });
-    var v = svg('linearGradient', { id: 'vol', x1: '0', y1: '0', x2: '1', y2: '1' });
-    v.appendChild(svg('stop', { offset: '0', 'stop-color': '#d8b98c' }));
-    v.appendChild(svg('stop', { offset: '1', 'stop-color': '#9c7a4f' }));
-    defs.appendChild(v);
-    var v2 = svg('linearGradient', { id: 'vol2', x1: '1', y1: '0', x2: '0', y2: '1' });
-    v2.appendChild(svg('stop', { offset: '0', 'stop-color': '#3b4252' }));
-    v2.appendChild(svg('stop', { offset: '1', 'stop-color': '#232833' }));
-    defs.appendChild(v2);
+    [['vol', '#e3c79c', '#a8845a'], ['vol2', '#3d4555', '#262c38'], ['vol3', '#f2c94c', '#c99a1e']].forEach(function (c) {
+      var v = svg('linearGradient', { id: c[0], x1: '0', y1: '0', x2: '1', y2: '1' });
+      v.appendChild(svg('stop', { offset: '0', 'stop-color': c[1] }));
+      v.appendChild(svg('stop', { offset: '1', 'stop-color': c[2] }));
+      defs.appendChild(v);
+    });
   }
 
   function addHold(frag, x, y, r, colorIdx, rand, isRoute) {
-    var pad = 6, size = r * 2 + pad * 2;
+    var pad = 8, size = r * 2 + pad * 2;
     var squash = 0.55 + rand() * 0.45;
-    var rot = (rand() * 360) | 0;
-    var node = svg('svg', { class: 'hold' + (isRoute ? ' on-route' : ''), width: size, height: size, viewBox: (-r - pad) + ' ' + (-r - pad) + ' ' + size + ' ' + size });
-    node.style.transform = 'translate(' + (x - r - pad).toFixed(1) + 'px,' + (y - r - pad).toFixed(1) + 'px) rotate(' + rot + 'deg)';
+    var node = svg('svg', { class: 'hold' + (isRoute ? ' on-route' : ''), width: f(size), height: f(size), viewBox: f(-r - pad) + ' ' + f(-r - pad) + ' ' + f(size) + ' ' + f(size) });
+    node.style.transform = 'translate(' + f(x - r - pad) + 'px,' + f(y - r - pad) + 'px) rotate(' + ((rand() * 360) | 0) + 'deg)';
     node.appendChild(svg('path', { d: blobPath(r, 7, 0.45, rand, squash), fill: 'url(#hg' + colorIdx + ')' }));
-    // l'insert et sa vis
-    node.appendChild(svg('circle', { cx: (r * 0.08).toFixed(1), cy: '0', r: Math.max(2.2, r * 0.13).toFixed(1), fill: '#15171c', opacity: '.85' }));
-    if (isRoute) {
-      // traces de magnésie sur les prises de la voie
-      node.appendChild(svg('ellipse', { cx: (-r * 0.15).toFixed(1), cy: (-r * squash * 0.35).toFixed(1), rx: (r * 0.5).toFixed(1), ry: (r * 0.22).toFixed(1), fill: '#fff', opacity: '.28' }));
-    }
+    node.appendChild(svg('circle', { cx: f(r * 0.08), cy: '0', r: f(Math.max(2.4, r * 0.13)), fill: '#1b1d22', opacity: '.8' }));
+    if (isRoute) node.appendChild(svg('ellipse', { cx: f(-r * 0.15), cy: f(-r * squash * 0.35), rx: f(r * 0.5), ry: f(r * 0.22), fill: '#fff', opacity: '.35' }));
     frag.appendChild(node);
   }
 
   function addVolume(frag, x, y, w, h, rand) {
-    var node = svg('svg', { class: 'volume', width: w, height: h, viewBox: '0 0 ' + w + ' ' + h });
-    node.style.transform = 'translate(' + x.toFixed(0) + 'px,' + y.toFixed(0) + 'px)';
-    var apex = [w * (0.3 + rand() * 0.4), h * (0.3 + rand() * 0.3)];
-    var wood = rand() > 0.4;
-    node.appendChild(svg('polygon', { points: '0,' + h + ' ' + w + ',' + h + ' ' + apex.join(','), fill: wood ? 'url(#vol)' : 'url(#vol2)' }));
-    node.appendChild(svg('polygon', { points: '0,' + h + ' ' + apex.join(',') + ' ' + (w * 0.08) + ',' + (h * 0.15), fill: wood ? '#b8956a' : '#2c323e' }));
-    node.appendChild(svg('polyline', { points: '0,' + h + ' ' + apex.join(',') + ' ' + w + ',' + h, fill: 'none', stroke: 'rgba(0,0,0,.25)', 'stroke-width': 2 }));
+    var node = svg('svg', { class: 'volume', width: f(w), height: f(h), viewBox: '0 0 ' + f(w) + ' ' + f(h) });
+    node.style.transform = 'translate(' + f(x) + 'px,' + f(y) + 'px)';
+    var apex = [w * (0.3 + rand() * 0.4), h * (0.25 + rand() * 0.3)];
+    var kind = rand();
+    var fill = kind < 0.55 ? 'url(#vol)' : (kind < 0.85 ? 'url(#vol2)' : 'url(#vol3)');
+    node.appendChild(svg('polygon', { points: '0,' + h + ' ' + w + ',' + h + ' ' + apex.join(','), fill: fill }));
+    node.appendChild(svg('polygon', { points: '0,' + h + ' ' + apex.join(',') + ' ' + (w * 0.5) + ',' + h, fill: 'rgba(255,255,255,.12)' }));
+    node.appendChild(svg('polyline', { points: '0,' + h + ' ' + apex.join(',') + ' ' + w + ',' + h, fill: 'none', stroke: 'rgba(0,0,0,.2)', 'stroke-width': 2 }));
     frag.appendChild(node);
   }
 
   function addQuickdraw(frag, x, y) {
     var k = s;
-    var node = svg('svg', { class: 'quickdraw', width: 30 * k, height: 60 * k, viewBox: '-15 0 30 60' });
-    node.style.transform = 'translate(' + (x - 15 * k).toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
-    node.appendChild(svg('circle', { cx: 0, cy: 5, r: 5, fill: '#aeb3ba', stroke: '#5f646b', 'stroke-width': 1.5 }));
-    node.appendChild(svg('path', { d: 'M-3 8 Q-7 14 -2 19 L2 19 Q7 14 3 8', fill: 'none', stroke: '#c9cdd3', 'stroke-width': 2.5 }));
-    node.appendChild(svg('rect', { x: -3.5, y: 18, width: 7, height: 22, rx: 3, fill: '#f2c94c' }));
-    node.appendChild(svg('path', { d: 'M-4 40 Q-9 48 -3 56 Q3 60 6 52 L4 42', fill: 'none', stroke: '#c9cdd3', 'stroke-width': 2.8, 'stroke-linecap': 'round' }));
+    var node = svg('svg', { class: 'quickdraw', width: f(30 * k), height: f(60 * k), viewBox: '-15 0 30 60' });
+    node.style.transform = 'translate(' + f(x - 15 * k) + 'px,' + f(y) + 'px)';
+    node.appendChild(svg('circle', { cx: 0, cy: 5, r: 5, fill: '#c8ccd2', stroke: '#6b7078', 'stroke-width': 1.5 }));
+    node.appendChild(svg('path', { d: 'M-3 8 Q-7 14 -2 19 L2 19 Q7 14 3 8', fill: 'none', stroke: '#dfe2e6', 'stroke-width': 2.5 }));
+    node.appendChild(svg('rect', { x: -3.5, y: 18, width: 7, height: 22, rx: 3, fill: '#1f2a44' }));
+    node.appendChild(svg('path', { d: 'M-4 40 Q-9 48 -3 56 Q3 60 6 52 L4 42', fill: 'none', stroke: '#dfe2e6', 'stroke-width': 2.8, 'stroke-linecap': 'round' }));
     frag.appendChild(node);
     return { x: x, y: y + 52 * k };
   }
 
-  // ---------- Construction du mur ----------
+  // ---------- construction du mur ----------
   function build() {
     W = document.documentElement.clientWidth;
     VH = window.innerHeight;
     mobile = W <= 760;
-    s = mobile ? 0.62 : (W > 1200 ? 1.25 : 1);
+    s = mobile ? 0.82 : clamp(W / 950, 1.15, 1.7);
+    axis = W * axisRatio();
     H = document.documentElement.scrollHeight;
-    groundY = H - VH * 0.12 + 4;
+    groundY = H - VH * 0.13 + 6;
     var anchor = $('.anchor');
-    topY = anchor ? anchor.getBoundingClientRect().top + window.scrollY + 40 : 120;
+    topY = anchor ? anchor.getBoundingClientRect().top + window.scrollY + 46 : 120;
 
     buildDefs();
     holdsEl.innerHTML = '';
     route = []; draws = [];
     var frag = document.createDocumentFragment();
     var rand = rng(20270308);
+    var D = dims();
 
-    // volumes en arrière-plan
-    var nVol = Math.round(H / 900);
+    // volumes
+    var nVol = Math.round(H / 800);
     for (var v = 0; v < nVol; v++) {
-      var vw = (mobile ? 90 : 160) + rand() * (mobile ? 90 : 220);
+      var vw = (mobile ? 100 : 200) + rand() * (mobile ? 90 : 260);
       var vx = rand() * (W - vw);
-      var vy = topY + rand() * (groundY - topY - 300);
-      if (Math.abs(vx + vw / 2 - routeX(vy)) < vw * 0.6) vx = (vx + W * 0.5) % (W - vw);
-      addVolume(frag, vx, vy, vw, vw * (0.5 + rand() * 0.4), rand);
+      var vy = topY + rand() * (groundY - topY - 400);
+      if (Math.abs(vx + vw / 2 - routeX(vy)) < vw * 0.7 + 60 * s) vx = (vx + W * 0.5) % Math.max(1, W - vw);
+      addVolume(frag, vx, vy, vw, vw * (0.45 + rand() * 0.4), rand);
     }
 
     // prises décoratives
-    var nDeco = Math.min(mobile ? 160 : 300, Math.round((W * H) / (mobile ? 9000 : 26000)));
+    var nDeco = Math.min(mobile ? 150 : 320, Math.round((W * H) / (mobile ? 11000 : 24000)));
     for (var i = 0; i < nDeco; i++) {
       var y = topY - 60 + rand() * (groundY - topY);
       var x = rand() * W;
-      if (Math.abs(x - routeX(y)) < (mobile ? 36 : 70)) continue;
-      var r = (mobile ? 7 : 10) + Math.pow(rand(), 2) * (mobile ? 16 : 26);
+      if (Math.abs(x - routeX(y)) < 70 * s) continue;
+      var r = (mobile ? 8 : 11) + Math.pow(rand(), 2) * (mobile ? 18 : 30);
       addHold(frag, x, y, r, (rand() * PALETTE.length) | 0, rand, false);
     }
 
-    // la voie : une prise à gauche, une à droite, en montant
-    var step = mobile ? 58 : 88;
+    // la voie : une prise à gauche, une à droite, espacées selon la taille du grimpeur
+    var step = (D.upper + D.fore) * 0.6;
     var side = 1;
-    for (var yy = groundY - 34 * s; yy > topY + 20; yy -= step * (0.8 + rand() * 0.45)) {
+    for (var yy = groundY - 40 * s; yy > topY + 10; yy -= step * (0.8 + rand() * 0.4)) {
       side = -side;
-      var off = (mobile ? 14 : 26) + rand() * (mobile ? 9 : 16);
-      var hx = routeX(yy) + side * off;
-      var hr = (mobile ? 6.5 : 9) + rand() * (mobile ? 4 : 6);
-      addHold(frag, hx, yy, hr, PALETTE.length, rand, true);
+      var hx = routeX(yy) + side * (D.shoulder + 10 * s + rand() * 12 * s);
+      addHold(frag, hx, yy, (7 + rand() * 4.5) * s, PALETTE.length, rand, true);
       route.push({ x: hx, y: yy, side: side });
     }
 
     // dégaines
-    var gap = mobile ? 220 : 300;
-    for (var dy = groundY - 260 * s; dy > topY + 40; dy -= gap) {
-      draws.push(addQuickdraw(frag, routeX(dy) + (mobile ? 9 : 14), dy));
+    var gap = 230 * s;
+    for (var dy = groundY - 220 * s; dy > topY + 40; dy -= gap) {
+      draws.push(addQuickdraw(frag, routeX(dy) + 6 * s, dy));
     }
 
     holdsEl.appendChild(frag);
@@ -197,82 +189,98 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  // ---------- Grimpeur ----------
+  // ---------- le grimpeur ----------
   function dims() {
     return {
-      torso: 46 * s, upper: 31 * s, fore: 29 * s, thigh: 35 * s, shin: 33 * s,
-      shoulder: 11 * s, hip: 8 * s, head: 11 * s
+      torso: 40 * s, neck: 5 * s, head: 10.5 * s,
+      upper: 27 * s, fore: 25 * s, thigh: 31 * s, shin: 30 * s,
+      shoulder: 13 * s, waist: 9 * s, hip: 10 * s
     };
   }
 
-  var body = { x: 0, y: 0, ready: false };
-  var limbs = {
-    armL: { hand: true, side: -1, end: null, goal: null, moving: false },
-    armR: { hand: true, side: 1, end: null, goal: null, moving: false },
-    legL: { hand: false, side: -1, end: null, goal: null, moving: false },
-    legR: { hand: false, side: 1, end: null, goal: null, moving: false }
-  };
+  var C = {};
+  function part(name, tag, attrs) {
+    if (tag === 'path' && !attrs.fill) attrs.fill = 'none';
+    C[name] = svg(tag, attrs); climberG.appendChild(C[name]);
+  }
+  (function buildClimber() {
+    climberG.innerHTML = '';
+    ['L', 'R'].forEach(function (k) {
+      part('thigh' + k, 'path', { stroke: k === 'L' ? '#26355a' : '#2f4170' });
+      part('shin' + k, 'path', { stroke: k === 'L' ? '#26355a' : '#2f4170' });
+      part('shoe' + k, 'ellipse', { fill: '#23252b', stroke: '#ff6b4a', 'stroke-width': 1.5 });
+    });
+    part('torso', 'path', { fill: '#ff6b4a' });
+    part('shade', 'path', { fill: 'rgba(0,0,0,.14)' });
+    part('belt', 'path', { stroke: '#f2c94c' });
+    part('bag', 'path', { fill: '#f6f2ea', stroke: '#23252b', 'stroke-width': 1.2 });
+    ['L', 'R'].forEach(function (k) {
+      part('upper' + k, 'path', { stroke: '#ff6b4a' });
+      part('fore' + k, 'path', { stroke: '#e3ad86' });
+      part('hand' + k, 'circle', { fill: '#e3ad86' });
+    });
+    part('neck', 'path', { stroke: '#d79f78' });
+    part('head', 'circle', { fill: '#e3ad86' });
+    part('hair', 'path', { fill: '#2b1d16' });
+    part('band', 'path', { stroke: '#56ccf2' });
+  })();
 
-  function ik(ax, ay, tx, ty, l1, l2, outward) {
+  var body = { x: 0, y: 0, vx: 0, vy: 0, ready: false };
+  var limbs = {
+    L: { hand: true, side: -1 }, R: { hand: true, side: 1 },
+    FL: { hand: false, side: -1 }, FR: { hand: false, side: 1 }
+  };
+  Object.keys(limbs).forEach(function (k) { var L = limbs[k]; L.end = null; L.goal = null; L.from = null; L.t = 1; L.dur = 0.3; });
+
+  function joint(ax, ay, tx, ty, l1, l2, outward) {
     var dx = tx - ax, dy = ty - ay;
     var d = Math.sqrt(dx * dx + dy * dy);
     var max = l1 + l2 - 0.5;
     if (d > max) { tx = ax + dx / d * max; ty = ay + dy / d * max; d = max; }
     d = Math.max(d, 1);
     var base = Math.atan2(ty - ay, tx - ax);
-    var a = Math.acos(Math.min(1, Math.max(-1, (l1 * l1 + d * d - l2 * l2) / (2 * l1 * d))));
+    var a = Math.acos(clamp((l1 * l1 + d * d - l2 * l2) / (2 * l1 * d), -1, 1));
     var j1 = [ax + Math.cos(base + a) * l1, ay + Math.sin(base + a) * l1];
     var j2 = [ax + Math.cos(base - a) * l1, ay + Math.sin(base - a) * l1];
-    var j = (j1[0] - j2[0]) * outward > 0 ? j1 : j2;
-    return 'M' + ax.toFixed(1) + ' ' + ay.toFixed(1) + 'L' + j[0].toFixed(1) + ' ' + j[1].toFixed(1) + 'L' + tx.toFixed(1) + ' ' + ty.toFixed(1);
+    return { j: (j1[0] - j2[0]) * outward > 0 ? j1 : j2, t: [tx, ty] };
   }
 
-  function pickHold(limb, rootY, reach) {
-    var best = null, i, h;
-    if (limb.hand) {
-      for (i = 0; i < route.length; i++) {
-        h = route[i];
-        if (h.side !== limb.side) continue;
-        if (h.y < rootY - reach || h.y > rootY + 6) continue;
-        if (!best || h.y < best.y) best = h;
-      }
-    } else {
-      var list = route.concat(floor);
-      for (i = 0; i < list.length; i++) {
-        h = list[i];
-        if (h.side !== limb.side) continue;
-        if (h.y < rootY + reach * 0.42 || h.y > rootY + reach) continue;
-        if (!best || h.y < best.y) best = h;
-      }
+  function candidates(L, rootY, D) {
+    var list = L.hand ? route : route.concat(floor), best = null;
+    var reach = L.hand ? D.upper + D.fore : D.thigh + D.shin;
+    for (var i = 0; i < list.length; i++) {
+      var h = list[i];
+      if (h.side !== L.side) continue;
+      if (L.hand) { if (h.y < rootY - reach * 0.95 || h.y > rootY - reach * 0.1) continue; }
+      else if (h.y < rootY + reach * 0.5 || h.y > rootY + reach * 0.98) continue;
+      if (!best || h.y < best.y) best = h;
     }
     return best;
   }
-
-  function nearest(limb, x, y) {
-    var best = null, bd = Infinity, list = limb.hand ? route : route.concat(floor);
+  function nearest(L, x, y) {
+    var list = L.hand ? route : route.concat(floor), best = null, bd = Infinity;
     for (var i = 0; i < list.length; i++) {
       var h = list[i];
-      if (h.side !== limb.side) continue;
+      if (h.side !== L.side) continue;
       var d = Math.abs(h.y - y) + Math.abs(h.x - x) * 0.3;
       if (d < bd) { bd = d; best = h; }
     }
     return best;
   }
 
-  // ---------- Magnésie ----------
+  // ---------- magnésie ----------
   var parts = [];
   function puff(x, y, n, colors) {
     if (reduce) return;
     for (var i = 0; i < n; i++) {
-      var a = Math.random() * Math.PI * 2, sp = 0.3 + Math.random() * (colors ? 3.2 : 1.1);
+      var a = Math.random() * Math.PI * 2, sp = 0.3 + Math.random() * (colors ? 3.4 : 1.2);
       parts.push({
-        x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - (colors ? 1.6 : 0.4),
-        life: 1, decay: 0.012 + Math.random() * 0.02, r: (colors ? 2 : 1.5) + Math.random() * (colors ? 3 : 4),
+        x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - (colors ? 1.8 : 0.4),
+        life: 1, decay: 0.011 + Math.random() * 0.02, r: (colors ? 2.2 : 1.6) + Math.random() * (colors ? 3 : 4) * (mobile ? 0.8 : 1.2),
         c: colors ? colors[(Math.random() * colors.length) | 0] : null
       });
     }
   }
-
   function drawParts(sy) {
     ctx.clearRect(0, 0, W, VH);
     for (var i = parts.length - 1; i >= 0; i--) {
@@ -280,125 +288,128 @@
       p.x += p.vx; p.y += p.vy; p.vx *= 0.97; p.vy = p.vy * 0.97 + (p.c ? 0.06 : 0.012);
       p.life -= p.decay;
       if (p.life <= 0) { parts.splice(i, 1); continue; }
-      ctx.globalAlpha = p.life * (p.c ? 0.95 : 0.55);
-      ctx.fillStyle = p.c || '#f6f3ee';
+      ctx.globalAlpha = p.life * (p.c ? 0.95 : 0.7);
+      ctx.fillStyle = p.c || '#ffffff';
       ctx.beginPath(); ctx.arc(p.x, p.y - sy, p.r * (p.c ? 1 : (1.6 - p.life * 0.6)), 0, Math.PI * 2); ctx.fill();
     }
     ctx.globalAlpha = 1;
   }
 
-  // ---------- Boucle ----------
+  // ---------- boucle ----------
   var last = performance.now();
   var summitDone = false;
   var altNum = $('#altNum'), railFill = $('#railFill');
   var rails = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
   var hint = $('#hint');
   var lastAlt = '';
+  var ORDER = ['L', 'FR', 'R', 'FL'];
+
+  function seg(p, a, b, w) { p.setAttribute('d', 'M' + f(a[0]) + ' ' + f(a[1]) + 'L' + f(b[0]) + ' ' + f(b[1])); p.setAttribute('stroke-width', f(w)); }
 
   function frame(now) {
-    var dt = Math.min(0.05, (now - last) / 1000); last = now;
+    var dt = Math.min(0.04, (now - last) / 1000); last = now;
     var sy = window.scrollY;
     var D = dims();
     var legLen = D.thigh + D.shin;
 
-    // le bassin suit le défilement, un peu en retard pour la souplesse
-    // au pied du mur, le grimpeur se pose sur le tapis ; ensuite il reste vers 60 % de l'écran
-    var floorY = groundY - legLen * 0.9;
+    // hauteur du bassin : posé au sol en bas, vers 62 % de l'écran ensuite, au relais en haut
+    var floorY = groundY - legLen * 0.86;
+    var topLim = topY + D.torso + D.neck + 2 * D.head;
     var maxS = H - VH;
-    var t = Math.max(0, Math.min(1, (sy - (maxS - VH * 0.7)) / (VH * 0.7)));
-    t = t * t * (3 - 2 * t);
-    // et au sommet, il rejoint le relais
-    var topLim = topY + D.torso + 30 * s;
-    var u = Math.max(0, Math.min(1, (VH * 0.7 - sy) / (VH * 0.7)));
-    u = u * u * (3 - 2 * u);
-    var follow = (sy + VH * 0.6) * (1 - t) + floorY * t;
-    var targetY = Math.max(topLim, Math.min(floorY, follow * (1 - u) + topLim * u));
-    var k = reduce ? 1 : 1 - Math.exp(-dt * 7);
+    var t = clamp((sy - (maxS - VH * 0.7)) / (VH * 0.7), 0, 1); t = t * t * (3 - 2 * t);
+    var u = clamp((VH * 0.7 - sy) / (VH * 0.7), 0, 1); u = u * u * (3 - 2 * u);
+    var follow = (sy + VH * 0.62) * (1 - t) + floorY * t;
+    var targetY = clamp(follow * (1 - u) + topLim * u, topLim, floorY);
+
+    floor = [{ x: routeX(groundY) - 14 * s, y: groundY, side: -1 }, { x: routeX(groundY) + 14 * s, y: groundY, side: 1 }];
     if (!body.ready) { body.y = targetY; body.x = routeX(targetY); }
-    body.y += (targetY - body.y) * k;
 
-    floor = [{ x: routeX(groundY) - 16 * s, y: groundY, side: -1 }, { x: routeX(groundY) + 16 * s, y: groundY, side: 1 }];
+    var hipY0 = body.y, shY0 = hipY0 - D.torso;
 
-    var hipY = body.y;
-    var shY = hipY - D.torso;
-    var anyHandMoving = limbs.armL.moving || limbs.armR.moving;
-    var anyFootMoving = limbs.legL.moving || limbs.legR.moving;
-    var sumX = 0;
-
-    ['armL', 'armR', 'legL', 'legR'].forEach(function (name) {
-      var L = limbs[name];
+    // choix des prises : un seul membre bouge à la fois, sauf si on scrolle vite
+    var moving = ORDER.some(function (k) { return limbs[k].t < 1; });
+    var bestK = null, bestGain = 0;
+    ORDER.forEach(function (k) {
+      var L = limbs[k];
+      var rootY = L.hand ? shY0 : hipY0;
       var rootX = body.x + L.side * (L.hand ? D.shoulder : D.hip);
-      var rootY = L.hand ? shY : hipY;
+      var want = candidates(L, rootY, D) || L.goal || nearest(L, rootX, rootY);
+      if (!L.goal || !body.ready) { L.goal = want; L.end = { x: want.x, y: want.y }; L.t = 1; return; }
       var reach = L.hand ? D.upper + D.fore : legLen;
-      var want = pickHold(L, rootY, reach * 0.97) || L.goal || nearest(L, rootX, rootY);
-      if (!L.goal) L.goal = want;
-      var gdx = L.goal.x - rootX, gdy = L.goal.y - rootY;
-      var tooFar = Math.sqrt(gdx * gdx + gdy * gdy) > reach * 1.12;
-      var busy = L.hand ? anyHandMoving : anyFootMoving;
-      if (want !== L.goal && (!busy || L.moving || tooFar)) L.goal = want;
-      if (!L.end || !body.ready) L.end = { x: L.goal.x, y: L.goal.y };
+      var gx = L.goal.x - rootX, gy = L.goal.y - rootY;
+      var tooFar = Math.sqrt(gx * gx + gy * gy) > reach * 1.08;
+      if (want === L.goal) return;
+      if (tooFar) { start(L, want, 0.14); return; }
+      L.next = want;
+      var gain = Math.abs(want.y - L.goal.y);
+      if (gain > bestGain) { bestGain = gain; bestK = k; }
+    });
+    if (bestK && !moving) start(limbs[bestK], null, limbs[bestK].hand ? 0.36 : 0.42);
 
-      var kk = reduce ? 1 : 1 - Math.exp(-dt * (tooFar ? 26 : 13));
-      var ex = L.goal.x - L.end.x, ey = L.goal.y - L.end.y;
-      var dist = Math.sqrt(ex * ex + ey * ey);
-      L.end.x += ex * kk; L.end.y += ey * kk;
-      var wasMoving = L.moving;
-      L.moving = dist > 2.5;
-      if (wasMoving && !L.moving && L.hand) puff(L.goal.x, L.goal.y, 9);
-      sumX += L.goal.x;
-
-      // petit arc quand le membre change de prise : il s'écarte du mur
-      var lift = L.moving ? Math.min(dist, 40) * 0.25 * L.side : 0;
-      el[name].setAttribute('d', ik(rootX, rootY - sy, L.end.x + lift, L.end.y - sy, L.hand ? D.upper : D.thigh, L.hand ? D.fore : D.shin, L.side));
+    // déplacement des membres en arc
+    var shift = 0, drop = 0, sumHX = 0, sumFX = 0;
+    ORDER.forEach(function (k) {
+      var L = limbs[k];
+      if (L.t < 1) {
+        L.t = reduce ? 1 : Math.min(1, L.t + dt / L.dur);
+        var e = ease(L.t);
+        var mx = (L.from.x + L.goal.x) / 2 + L.side * (L.hand ? 16 : 20) * s;
+        var my = (L.from.y + L.goal.y) / 2 - (L.hand ? 10 : 16) * s;
+        var a = 1 - e;
+        L.end.x = a * a * L.from.x + 2 * a * e * mx + e * e * L.goal.x;
+        L.end.y = a * a * L.from.y + 2 * a * e * my + e * e * L.goal.y;
+        if (L.t >= 1) { L.end.x = L.goal.x; L.end.y = L.goal.y; if (L.hand) puff(L.goal.x, L.goal.y, 12); }
+        // le corps compense : il part du côté opposé et se tasse quand un pied monte
+        var w = Math.sin(L.t * Math.PI);
+        shift -= L.side * 7 * s * w;
+        if (!L.hand) drop += 5 * s * w;
+      }
+      if (L.hand) sumHX += L.goal.x; else sumFX += L.goal.x;
     });
 
-    // le corps se recentre entre ses appuis, avec un léger balancement
-    var bx = sumX / 4 + Math.sin(now / 900) * 1.5 * s;
-    body.x += (bx - body.x) * (reduce ? 1 : 1 - Math.exp(-dt * 5));
+    // ressort amorti : le corps suit avec un peu d'inertie
+    var tx = sumFX / 2 * 0.55 + sumHX / 2 * 0.45 + shift + Math.sin(now / 1100) * 1.2 * s;
+    var ty = targetY + drop + Math.sin(now / 1300) * 1.2 * s;
+    if (reduce || !body.ready) { body.x = tx; body.y = ty; body.vx = body.vy = 0; }
+    else {
+      var K = 70, Cd = 13;
+      body.vx += (K * (tx - body.x) - Cd * body.vx) * dt;
+      body.vy += (K * (ty - body.y) - Cd * body.vy) * dt;
+      body.x += body.vx * dt; body.y += body.vy * dt;
+    }
     body.ready = true;
 
-    var hx = body.x, hy = hipY - sy, shy = shY - sy;
-    var lean = (limbs.armL.end.x + limbs.armR.end.x) / 2 - body.x;
-    el.torso.setAttribute('d', 'M' + hx.toFixed(1) + ' ' + hy.toFixed(1) + 'Q' + (hx - lean * 0.15).toFixed(1) + ' ' + ((hy + shy) / 2).toFixed(1) + ' ' + (hx + lean * 0.1).toFixed(1) + ' ' + shy.toFixed(1));
-    var headX = hx + lean * 0.18, headY = shy - D.head - 5 * s;
-    el.head.setAttribute('cx', headX.toFixed(1)); el.head.setAttribute('cy', headY.toFixed(1)); el.head.setAttribute('r', D.head.toFixed(1));
-    var R = D.head + 0.6;
-    el.hair.setAttribute('d', 'M' + (headX - R).toFixed(1) + ' ' + (headY + 1).toFixed(1) + 'A' + R + ' ' + R + ' 0 0 1 ' + (headX + R).toFixed(1) + ' ' + (headY + 1).toFixed(1) + 'Q' + headX.toFixed(1) + ' ' + (headY + R * 0.55).toFixed(1) + ' ' + (headX - R).toFixed(1) + ' ' + (headY + 1).toFixed(1) + 'Z');
-    el.harness.setAttribute('cx', hx.toFixed(1)); el.harness.setAttribute('cy', (hy - 2 * s).toFixed(1)); el.harness.setAttribute('r', (5 * s).toFixed(1));
-    var bgx = hx - 3 * s, bgy = hy + 4 * s;
-    el.bag.setAttribute('d', 'M' + (bgx - 6 * s) + ' ' + bgy + 'h' + 12 * s + 'v' + 9 * s + 'q0 ' + 4 * s + ' ' + -4 * s + ' ' + 4 * s + 'h' + -4 * s + 'q' + -4 * s + ' 0 ' + -4 * s + ' ' + -4 * s + 'z');
+    draw(D, sy, now);
 
-    // la corde : du baudrier vers le bas, dans chaque dégaine déjà passée
-    var pts = [[hx, hy]];
+    // corde : du baudrier vers le bas, dans chaque dégaine déjà passée
+    var hip = [body.x, body.y - sy];
+    var pts = [hip];
     for (var i = draws.length - 1; i >= 0; i--) {
       var q = draws[i];
-      if (q.y < hipY + 6) continue;
+      if (q.y < body.y + 6) continue;
       pts.push([q.x, q.y - sy]);
       if (q.y - sy > VH + 80) break;
     }
-    if (pts[pts.length - 1][1] < VH + 80) pts.push([routeX(groundY) - 60 * s, groundY + 60 - sy]);
-    var d = 'M' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1);
+    if (pts[pts.length - 1][1] < VH + 80) pts.push([routeX(groundY) - 70 * s, groundY + 80 - sy]);
+    var d = 'M' + f(pts[0][0]) + ' ' + f(pts[0][1]);
     for (var j = 1; j < pts.length; j++) {
-      var a = pts[j - 1], b = pts[j];
-      var mx = (a[0] + b[0]) / 2 + 10 * s, my = (a[1] + b[1]) / 2 + 6;
-      d += 'Q' + mx.toFixed(1) + ' ' + my.toFixed(1) + ' ' + b[0].toFixed(1) + ' ' + b[1].toFixed(1);
+      var p0 = pts[j - 1], p1 = pts[j];
+      d += 'Q' + f((p0[0] + p1[0]) / 2 + 9 * s) + ' ' + f((p0[1] + p1[1]) / 2 + 5) + ' ' + f(p1[0]) + ' ' + f(p1[1]);
     }
-    el.rope.setAttribute('d', d);
-    el.rope.style.strokeWidth = (3.2 * s + 0.6) + 'px';
+    rope.setAttribute('d', d);
+    rope.style.strokeWidth = f(3 * s + 0.5) + 'px';
 
-    // lumière qui suit le grimpeur
-    light.style.setProperty('--lx', hx.toFixed(0) + 'px');
-    light.style.setProperty('--ly', shy.toFixed(0) + 'px');
+    light.style.setProperty('--lx', f(body.x) + 'px');
+    light.style.setProperty('--ly', f(body.y - D.torso - sy) + 'px');
 
     // altimètre
-    var prog = Math.max(0, Math.min(1, (floorY - hipY) / (floorY - topLim)));
+    var prog = clamp((floorY - body.y) / (floorY - topLim), 0, 1);
     var alt = (prog * WALL_METERS).toFixed(1).replace('.', ',');
     if (alt !== lastAlt) { altNum.textContent = alt; lastAlt = alt; }
     railFill.style.height = (prog * 100).toFixed(1) + '%';
-
     if (prog > 0.985 && !summitDone) {
       summitDone = true;
-      puff(hx, shY - 10, 90, ['#ff6b4a', '#f2c94c', '#56ccf2', '#6fcf97', '#bb6bd9', '#ffffff']);
+      puff(body.x, body.y - D.torso - 20 * s, 110, ['#ff6b4a', '#f2c94c', '#56ccf2', '#6fcf97', '#bb6bd9', '#ffffff']);
     }
     if (prog < 0.9) summitDone = false;
 
@@ -406,7 +417,78 @@
     requestAnimationFrame(frame);
   }
 
-  // ---------- Section courante, apparition, interface ----------
+  function start(L, want, dur) {
+    if (want) L.goal = want; else L.goal = L.next || L.goal;
+    L.from = { x: L.end.x, y: L.end.y };
+    L.t = 0; L.dur = dur;
+  }
+
+  // dessin du grimpeur, vu de dos
+  function draw(D, sy, now) {
+    var P = [body.x, body.y - sy];
+    var handMid = (limbs.L.end.x + limbs.R.end.x) / 2;
+    var lean = clamp((handMid - body.x) * 0.35, -12 * s, 12 * s);
+    var N = [P[0] + lean, P[1] - D.torso];
+    var ux = (N[0] - P[0]) / D.torso, uy = (N[1] - P[1]) / D.torso;
+    var vx = -uy, vy = ux; // perpendiculaire (vers la droite)
+    function at(base, along, across) { return [base[0] + ux * along + vx * across, base[1] + uy * along + vy * across]; }
+
+    // jambes
+    ['L', 'R'].forEach(function (k) {
+      var L = limbs[k === 'L' ? 'FL' : 'FR'];
+      var root = at(P, 2 * s, L.side * (D.hip - 3 * s));
+      var r = joint(root[0], root[1], L.end.x, L.end.y - sy, D.thigh, D.shin, L.side);
+      seg(C['thigh' + k], root, r.j, 12.5 * s);
+      seg(C['shin' + k], r.j, r.t, 10 * s);
+      var ang = Math.atan2(r.t[1] - r.j[1], r.t[0] - r.j[0]) * 180 / Math.PI - 90;
+      C['shoe' + k].setAttribute('cx', f(r.t[0])); C['shoe' + k].setAttribute('cy', f(r.t[1] + 2 * s));
+      C['shoe' + k].setAttribute('rx', f(6 * s)); C['shoe' + k].setAttribute('ry', f(8.5 * s));
+      C['shoe' + k].setAttribute('transform', 'rotate(' + f(ang) + ' ' + f(r.t[0]) + ' ' + f(r.t[1] + 2 * s) + ')');
+    });
+
+    // buste : épaules plus larges que la taille
+    var A = at(P, 0, D.hip), B = at(N, 0, D.shoulder + 2 * s), Cc = at(N, 0, -D.shoulder - 2 * s), Dd = at(P, 0, -D.hip);
+    var wR = at(P, D.torso * 0.5, D.waist), wL = at(P, D.torso * 0.5, -D.waist);
+    var topC = at(N, 6 * s, 0), botC = at(P, -4 * s, 0);
+    var torso = 'M' + f(A[0]) + ' ' + f(A[1]) + 'Q' + f(wR[0]) + ' ' + f(wR[1]) + ' ' + f(B[0]) + ' ' + f(B[1]) +
+      'Q' + f(topC[0]) + ' ' + f(topC[1]) + ' ' + f(Cc[0]) + ' ' + f(Cc[1]) +
+      'Q' + f(wL[0]) + ' ' + f(wL[1]) + ' ' + f(Dd[0]) + ' ' + f(Dd[1]) +
+      'Q' + f(botC[0]) + ' ' + f(botC[1]) + ' ' + f(A[0]) + ' ' + f(A[1]) + 'Z';
+    C.torso.setAttribute('d', torso);
+    // ombre de la colonne
+    var s1 = at(P, 4 * s, 0), s2 = at(N, -4 * s, 0);
+    C.shade.setAttribute('d', 'M' + f(s1[0] - 1.5 * s) + ' ' + f(s1[1]) + 'L' + f(s2[0] - 1.5 * s) + ' ' + f(s2[1]) + 'L' + f(s2[0] + 1.5 * s) + ' ' + f(s2[1]) + 'L' + f(s1[0] + 1.5 * s) + ' ' + f(s1[1]) + 'Z');
+    var b1 = at(P, 3 * s, -D.hip - 1 * s), b2 = at(P, 3 * s, D.hip + 1 * s), bm = at(P, 0, 0);
+    C.belt.setAttribute('d', 'M' + f(b1[0]) + ' ' + f(b1[1]) + 'Q' + f(bm[0]) + ' ' + f(bm[1] + 3 * s) + ' ' + f(b2[0]) + ' ' + f(b2[1]));
+    C.belt.setAttribute('stroke-width', f(4.5 * s));
+    var g = at(P, -2 * s, -2 * s);
+    C.bag.setAttribute('d', 'M' + f(g[0] - 6 * s) + ' ' + f(g[1]) + 'h' + f(12 * s) + 'v' + f(9 * s) + 'q0 ' + f(4 * s) + ' ' + f(-4 * s) + ' ' + f(4 * s) + 'h' + f(-4 * s) + 'q' + f(-4 * s) + ' 0 ' + f(-4 * s) + ' ' + f(-4 * s) + 'z');
+
+    // bras
+    ['L', 'R'].forEach(function (k) {
+      var L = limbs[k];
+      var root = at(N, -3 * s, L.side * (D.shoulder - 1 * s));
+      var r = joint(root[0], root[1], L.end.x, L.end.y - sy, D.upper, D.fore, L.side);
+      seg(C['upper' + k], root, r.j, 10 * s);
+      seg(C['fore' + k], r.j, r.t, 8 * s);
+      C['hand' + k].setAttribute('cx', f(r.t[0])); C['hand' + k].setAttribute('cy', f(r.t[1]));
+      C['hand' + k].setAttribute('r', f(5.2 * s));
+    });
+
+    // tête : elle regarde la prochaine prise
+    var look = 0;
+    ORDER.forEach(function (k) { if (limbs[k].t < 1 && limbs[k].hand) look = (limbs[k].goal.x - body.x) * 0.12; });
+    var neckTop = at(N, D.neck, 0);
+    var Hc = [neckTop[0] + ux * D.head + clamp(look, -5 * s, 5 * s), neckTop[1] + uy * D.head];
+    seg(C.neck, N, neckTop, 8 * s);
+    C.head.setAttribute('cx', f(Hc[0])); C.head.setAttribute('cy', f(Hc[1])); C.head.setAttribute('r', f(D.head));
+    var R = D.head + 0.8;
+    C.hair.setAttribute('d', 'M' + f(Hc[0] - R) + ' ' + f(Hc[1] + 2 * s) + 'A' + f(R) + ' ' + f(R) + ' 0 1 1 ' + f(Hc[0] + R) + ' ' + f(Hc[1] + 2 * s) + 'Q' + f(Hc[0]) + ' ' + f(Hc[1] + R * 0.75) + ' ' + f(Hc[0] - R) + ' ' + f(Hc[1] + 2 * s) + 'Z');
+    C.band.setAttribute('d', 'M' + f(Hc[0] - R * 0.98) + ' ' + f(Hc[1] - R * 0.15) + 'Q' + f(Hc[0]) + ' ' + f(Hc[1] + R * 0.12) + ' ' + f(Hc[0] + R * 0.98) + ' ' + f(Hc[1] - R * 0.15));
+    C.band.setAttribute('stroke-width', f(3.2 * s));
+  }
+
+  // ---------- section courante, apparition, interface ----------
   function activeSection() {
     var mid = window.innerHeight / 2, found = null;
     document.querySelectorAll('.pitch').forEach(function (p) {
@@ -415,16 +497,14 @@
     });
     rails.forEach(function (a) { a.classList.toggle('on', a.dataset.target === found); });
   }
-
   function onScroll() {
     activeSection();
     if (hint && window.scrollY < H - VH - 140) hint.classList.add('gone');
   }
-
   function goTo(id, smooth) {
-    var t = document.getElementById(id);
-    if (!t) return;
-    var top = t.offsetTop + Math.min(t.offsetHeight, VH * 1.6) / 2 - VH / 2;
+    var el = document.getElementById(id);
+    if (!el) return;
+    var top = el.offsetTop + Math.min(el.offsetHeight, VH * 1.6) / 2 - VH / 2;
     if (id === 'sommet') top = 0;
     if (id === 'depart') top = H;
     window.scrollTo({ top: top, behavior: smooth && !reduce ? 'smooth' : 'auto' });
@@ -448,10 +528,15 @@
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-    }, { threshold: 0.15 });
+    }, { threshold: 0.12 });
     document.querySelectorAll('.reveal').forEach(function (n) { io.observe(n); });
   } else {
     document.querySelectorAll('.reveal').forEach(function (n) { n.classList.add('in'); });
+  }
+
+  function resetClimber() {
+    body.ready = false;
+    Object.keys(limbs).forEach(function (n) { limbs[n].goal = null; limbs[n].end = null; limbs[n].t = 1; });
   }
 
   var rt;
@@ -463,13 +548,12 @@
       var ratio = window.scrollY / Math.max(1, document.documentElement.scrollHeight - vh);
       build();
       window.scrollTo(0, Math.min(1, ratio) * (H - VH));
-      body.ready = false;
-      Object.keys(limbs).forEach(function (n) { limbs[n].goal = null; limbs[n].end = null; });
+      resetClimber();
     }, 180);
   });
   window.addEventListener('scroll', onScroll, { passive: true });
 
-  function start() {
+  function boot() {
     build();
     var id = location.hash.slice(1);
     var place = function () {
@@ -477,14 +561,11 @@
     };
     place();
     requestAnimationFrame(place);
-    window.addEventListener('load', function () { if (window.scrollY > H - VH - 40 || !id) place(); }, { once: true });
+    window.addEventListener('load', function () { if (!id) place(); }, { once: true });
     onScroll();
     requestAnimationFrame(function (t) { last = t; frame(t); });
   }
 
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(start);
-  } else {
-    window.addEventListener('load', start);
-  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(boot);
+  else window.addEventListener('load', boot);
 })();

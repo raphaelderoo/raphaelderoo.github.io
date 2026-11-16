@@ -37,17 +37,7 @@
 <div class="light" id="light" aria-hidden="true"></div>
 <svg class="stage" id="stage" aria-hidden="true">
   <path id="rope" class="rope" d=""></path>
-  <g id="climber" class="climber">
-    <path class="limb leg" id="legL" d=""></path>
-    <path class="limb leg" id="legR" d=""></path>
-    <path class="limb arm back" id="armL" d=""></path>
-    <path class="torso" id="torso" d=""></path>
-    <circle class="harness" id="harness" r="5"></circle>
-    <path class="chalkbag" id="chalkbag" d=""></path>
-    <path class="limb arm" id="armR" d=""></path>
-    <circle class="head" id="head" r="11"></circle>
-    <path class="hair" id="hair" d=""></path>
-  </g>
+  <g id="climber" class="climber"></g>
 </svg>
 <canvas class="chalk" id="chalk" aria-hidden="true"></canvas>
 
@@ -84,7 +74,7 @@
   </section>
 
   <section class="pitch" id="qui" data-grade="5a">
-    <article class="topo-card reveal" style="--tag:#f2c94c">
+    <article class="topo-card side-r reveal" style="--tag:#f2c94c">
       <header class="card-head"><span class="grade">5a</span><span class="card-route">Voie n°1</span></header>
       <h2>Qui suis-je</h2>
       <p class="lead">Je m'appelle Raphaël. Je suis en 3ᵉ année de BUT Informatique à l'IUT du Littoral, à Calais, et j'aime construire des choses qui servent vraiment&nbsp;: une plateforme pour des lycéens, un chatbot qui parle SQL, une appli de messagerie.</p>
@@ -98,7 +88,7 @@
   </section>
 
   <section class="pitch" id="experience" data-grade="5c">
-    <article class="topo-card reveal" style="--tag:#56ccf2">
+    <article class="topo-card side-l reveal" style="--tag:#56ccf2">
       <header class="card-head"><span class="grade">5c</span><span class="card-route">Voie n°2</span></header>
       <h2>Expérience</h2>
       <div class="xp">
@@ -116,34 +106,34 @@
   </section>
 
   <section class="pitch pitch-tall" id="projets" data-grade="6a+">
-    <header class="pitch-title reveal">
+    <header class="pitch-title side-l reveal">
       <span class="grade grade-lg" style="--tag:#6fcf97">6a+</span>
       <h2>Projets</h2>
       <p>Quatre prises, quatre projets.</p>
     </header>
 
-    <article class="topo-card proj reveal" style="--tag:#6fcf97">
+    <article class="topo-card proj side-r reveal" style="--tag:#6fcf97">
       <header class="card-head"><span class="grade">IA</span><span class="card-route">BUT 3 · équipe de 4</span></header>
       <h3>NaturSQL</h3>
       <p>Pose une question en français, obtiens la réponse de la base de données. Un LLM local (Ollama) traduit la question en requête SQL sur une base MariaDB. J'ai développé l'authentification et la gestion de profil&nbsp;: mots de passe sécurisés et migration de schéma.</p>
       <ul class="stack"><li>Python</li><li>Gradio</li><li>Ollama</li><li>MariaDB</li><li>Docker</li></ul>
     </article>
 
-    <article class="topo-card proj reveal" style="--tag:#bb6bd9">
+    <article class="topo-card proj side-l reveal" style="--tag:#bb6bd9">
       <header class="card-head"><span class="grade">Web</span><span class="card-route">BUT 2 · en équipe</span></header>
       <h3>Chess Predict</h3>
       <p>Prédire l'issue d'une partie d'échecs à partir de l'historique des deux joueurs. J'ai fait le front-end&nbsp;: les graphiques de probabilités (Chart.js) et le visualiseur de parties (chess.js), branchés sur une API Node.js et Express.</p>
       <ul class="stack"><li>PHP</li><li>TypeScript</li><li>Node.js</li><li>Chart.js</li><li>PostgreSQL</li></ul>
     </article>
 
-    <article class="topo-card proj reveal" style="--tag:#56ccf2">
+    <article class="topo-card proj side-r reveal" style="--tag:#56ccf2">
       <header class="card-head"><span class="grade">Mobile</span><span class="card-route">BUT · équipe de 3</span></header>
       <h3>PrivateMessaging</h3>
       <p>Une messagerie privée sur mobile&nbsp;: on s'associe en scannant un QR code. J'ai fait l'écran d'accueil, la navigation entre les pages (go_router) et l'écran de discussion, qui envoie et reçoit les messages via une API REST.</p>
       <ul class="stack"><li>Flutter</li><li>Dart</li><li>go_router</li><li>API REST</li></ul>
     </article>
 
-    <article class="topo-card proj reveal" style="--tag:#ff6b4a">
+    <article class="topo-card proj side-l reveal" style="--tag:#ff6b4a">
       <header class="card-head"><span class="grade">Perso</span><span class="card-route">Le site que tu grimpes</span></header>
       <h3>Ce mur</h3>
       <p>Mon portfolio, sans framework&nbsp;: HTML, CSS et JavaScript. Les prises sont générées, le grimpeur calcule la position de ses bras et de ses jambes à chaque image, et la corde passe dans les dégaines au fil de la montée.</p>
@@ -152,7 +142,7 @@
   </section>
 
   <section class="pitch" id="competences" data-grade="6b">
-    <article class="topo-card wide reveal" style="--tag:#bb6bd9">
+    <article class="topo-card side-r reveal" style="--tag:#bb6bd9">
       <header class="card-head"><span class="grade">6b</span><span class="card-route">Voie n°4 · une couleur par famille</span></header>
       <h2>Compétences</h2>
       <div class="skillset">
@@ -174,7 +164,7 @@
 
   <section class="pitch pitch-top" id="sommet" data-grade="6c">
     <div class="anchor" aria-hidden="true"><span></span><span></span></div>
-    <article class="topo-card summit reveal" style="--tag:#ff6b4a">
+    <article class="topo-card summit side-r reveal" style="--tag:#ff6b4a">
       <header class="card-head"><span class="grade">6c</span><span class="card-route">Sommet · <span id="summitAlt">20</span> m</span></header>
       <h2>Tu es au sommet&nbsp;!</h2>
       <p class="lead">Merci d'avoir grimpé jusqu'ici. Si mon profil t'intéresse, pour un stage ou un projet, écris-moi.</p>
