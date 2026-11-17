@@ -110,7 +110,59 @@ img, svg { display: block; }
   box-shadow: 0 6px 16px -6px rgba(0,0,0,.45); transition: transform .2s, background .2s;
 }
 .cv-link:hover { transform: translateY(-2px); background: #ff8466; }
-.hero-cta { margin: 28px 0 0; }
+.hero-cta { margin: 28px 0 0; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; }
+button.cv-link { border: 0; cursor: pointer; }
+
+/* réseaux : petites prises rondes vissées au mur */
+.social { display: flex; flex-direction: column; gap: 8px; }
+.social-inline { flex-direction: row; }
+.soc {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: radial-gradient(circle at 35% 30%, #4a505b, #1f2228 75%); color: #f3efe8;
+  box-shadow: 0 6px 14px -6px rgba(0,0,0,.55), inset 0 -3px 0 rgba(0,0,0,.25);
+  transition: transform .25s cubic-bezier(.3,1.6,.5,1), background .2s;
+}
+.soc svg { width: 19px; height: 19px; fill: currentColor; }
+.soc:hover { transform: translateY(-3px) rotate(-6deg); background: radial-gradient(circle at 35% 30%, #ff9a80, var(--accent) 75%); color: #16181c; }
+.social-inline .soc { width: 50px; height: 50px; }
+
+/* la fiche CV, ouverte par-dessus le mur */
+.cv-sheet {
+  width: min(880px, 94vw); max-height: 94vh; padding: 0; border: 0; background: transparent; overflow: visible;
+}
+.cv-sheet::backdrop { background: rgba(30, 32, 38, .55); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.cv-sheet[open] { animation: sheetIn .45s cubic-bezier(.2,1.2,.4,1); }
+@keyframes sheetIn { from { opacity: 0; transform: translateY(40px) rotate(-1.5deg) scale(.96); } to { opacity: 1; transform: none; } }
+.cv-paper {
+  --ink: #1f2126; position: relative; display: flex; flex-direction: column; max-height: 94vh;
+  padding: 26px 26px 22px; border-radius: 3px; color: var(--ink);
+  background: linear-gradient(170deg, #f8f4ea, #efe8d9);
+  box-shadow: 0 30px 80px -20px rgba(0,0,0,.6);
+}
+.cv-paper::before, .cv-paper::after {
+  content: ""; position: absolute; top: 12px; width: 12px; height: 12px; border-radius: 50%;
+  background: linear-gradient(45deg, transparent 44%, rgba(0,0,0,.45) 45% 55%, transparent 56%), radial-gradient(circle at 35% 30%, #f1f2f4, #9aa0a8 70%);
+}
+.cv-paper::before { left: 12px; } .cv-paper::after { right: 12px; }
+.cv-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.cv-head h2 { margin: 0; font-size: 34px; }
+.cv-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.cv-close { width: 44px; padding: 11px 0; text-align: center; }
+.cv-view { flex: 1; min-height: 0; overflow: auto; border: 1.5px dashed rgba(0,0,0,.2); background: #fff; }
+.cv-pdf { display: block; width: 100%; height: min(1100px, 76vh); border: 0; }
+.cv-img { display: block; width: 100%; height: auto; }
+
+/* formulaire de contact */
+.mail-form { display: grid; gap: 12px; margin-top: 8px; }
+.form-title { margin: 6px 0 0; font: 800 18px/1.2 var(--display); color: var(--ink); }
+.mail-form label { display: grid; gap: 6px; font: 700 12px/1 var(--text); text-transform: uppercase; letter-spacing: .12em; color: var(--ink-mute); }
+.mail-form input, .mail-form textarea {
+  font: 500 17px/1.5 var(--text); color: var(--ink); text-transform: none; letter-spacing: 0;
+  padding: 10px 12px; border: 2px solid var(--ink); border-radius: 6px; background: rgba(255,255,255,.55); resize: vertical;
+}
+.mail-form input:focus, .mail-form textarea:focus { outline: none; border-color: var(--accent); background: #fff; }
+.mail-form .btn { justify-self: start; }
+.form-note { font-size: 14px; color: var(--ink-mute); margin: 0; }
 .hero-cta .btn { font-size: 17px; padding: 14px 22px; border-color: var(--accent); color: #16181c; }
 .hero-cta + .hero-hint { margin-top: 16px; }
 .alt-num { font-size: 28px; font-weight: 800; letter-spacing: -.02em; }
@@ -374,6 +426,9 @@ html.impact .pad-a { animation: squash .6s cubic-bezier(.3,1.5,.5,1); transform-
   .alt-num { font-size: 20px; }
   .topo { flex-direction: row-reverse; align-items: center; gap: 8px; }
   .cv-link { font-size: 13px; padding: 8px 12px; }
+  .topo .social { display: none; }
+  .cv-paper { padding: 22px 14px 14px; }
+  .cv-head h2 { font-size: 26px; }
   .pad-a { left: 0; width: 36vw; }
   .pad-b { left: 40vw; width: 24vw; }
   .pad-c { display: none; }

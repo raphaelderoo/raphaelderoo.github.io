@@ -655,6 +655,32 @@
     });
   });
 
+  // ---------- la fiche CV ----------
+  var sheet = $('#cvSheet');
+  function openCV() {
+    if (!sheet) return;
+    var pdf = sheet.querySelector('.cv-pdf');
+    if (pdf && !pdf.src) pdf.src = pdf.getAttribute('data-src');
+    if (sheet.showModal) sheet.showModal(); else sheet.setAttribute('open', '');
+  }
+  function closeCV() { if (sheet.close) sheet.close(); else sheet.removeAttribute('open'); }
+  document.querySelectorAll('[data-cv]').forEach(function (b) { b.addEventListener('click', openCV); });
+  if (sheet) {
+    sheet.querySelector('[data-close]').addEventListener('click', closeCV);
+    // un clic à côté de la feuille la ferme
+    sheet.addEventListener('click', function (e) { if (e.target === sheet) closeCV(); });
+  }
+
+  // ---------- formulaire : ouvre la messagerie avec le message rempli ----------
+  var form = $('#mailForm');
+  if (form) form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var nom = form.elements.nom.value.trim(), msg = form.elements.message.value.trim();
+    var subject = 'Contact depuis ton portfolio' + (nom ? ' : ' + nom : '');
+    var bodyTxt = msg + (nom ? '\n\n' + nom : '');
+    window.location.href = 'mailto:derooraphael077@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyTxt);
+  });
+
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
