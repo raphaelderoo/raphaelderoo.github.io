@@ -338,20 +338,24 @@
     if (window.innerHeight < 2 || document.documentElement.clientWidth < 2) { requestAnimationFrame(frame); return; }
     if (VH < 2 || W < 2) { build(); resetClimber(); }
     if (!isFinite(body.x) || !isFinite(body.y)) resetClimber();
-    var sy = window.scrollY;
     var D = dims();
     var legLen = D.thigh + D.shin;
-
-    // hauteur du bassin : posé au sol en bas, vers 62 % de l'écran ensuite, au relais en haut
     var floorY = groundY - legLen * 0.86;
     var topLim = topY + D.torso + D.neck + 2 * D.head;
+    floor = [{ x: routeX(groundY) - 14 * s, y: groundY, side: -1 }, { x: routeX(groundY) + 14 * s, y: groundY, side: 1 }];
+
+    // la chute : le corps n'obéit plus au scroll, c'est la page qui le suit
+    if (fall.active) fallStep(dt, D, legLen, floorY, now);
+    var sy = window.scrollY;
+
+    if (!fall.active) {
+    // hauteur du bassin : posé au sol en bas, vers 62 % de l'écran ensuite, au relais en haut
     var maxS = H - VH;
     var t = clamp((sy - (maxS - VH * 0.7)) / (VH * 0.7), 0, 1); t = t * t * (3 - 2 * t);
     var u = clamp((VH * 0.7 - sy) / (VH * 0.7), 0, 1); u = u * u * (3 - 2 * u);
     var follow = (sy + VH * 0.62) * (1 - t) + floorY * t;
     var targetY = clamp(follow * (1 - u) + topLim * u, topLim, floorY);
 
-    floor = [{ x: routeX(groundY) - 14 * s, y: groundY, side: -1 }, { x: routeX(groundY) + 14 * s, y: groundY, side: 1 }];
     if (!body.ready) { body.y = targetY; body.x = routeX(targetY); }
 
     var hipY0 = body.y, shY0 = hipY0 - D.torso;
@@ -413,8 +417,10 @@
       body.x += body.vx * dt; body.y += body.vy * dt;
     }
     body.ready = true;
+    }
 
     draw(D, sy, now);
+    climberG.setAttribute('transform', fall.active && fall.ang ? 'rotate(' + f(fall.ang * 180 / Math.PI) + ' ' + f(body.x) + ' ' + f(body.y - sy - D.torso * 0.5) + ')' : '');
 
     // corde : du baudrier vers le bas, dans chaque dégaine déjà passée
     var hip = [body.x, body.y - sy];
@@ -433,6 +439,7 @@
     }
     rope.setAttribute('d', d);
     rope.style.strokeWidth = f(3 * s + 0.5) + 'px';
+    rope.style.opacity = fall.active ? '0' : '1';
 
     light.style.setProperty('--lx', f(body.x) + 'px');
     light.style.setProperty('--ly', f(body.y - D.torso - sy) + 'px');
@@ -451,6 +458,94 @@
     drawParts(sy);
     requestAnimationFrame(frame);
   }
+
+  // ---------- la chute ----------
+  var fall = { active: false, phase: '', t: 0, vy: 0, ang: 0, spin: 1, fromAng: 0, fromY: 0 };
+  var dropBtn = $('#drop');
+
+  function startFall() {
+    if (fall.active || !limbs.L.end) return;
+    if (reduce) { window.scrollTo(0, H); return; }
+    var D = dims();
+    fall.active = true; fall.phase = 'air'; fall.t = 0; fall.vy = -220; fall.ang = 0;
+    fall.spin = Math.random() < 0.5 ? -1 : 1;
+    ORDER.forEach(function (k) { limbs[k].t = 1; });
+    puff(limbs.L.end.x, limbs.L.end.y, 18); puff(limbs.R.end.x, limbs.R.end.y, 18);
+    document.documentElement.classList.add('falling');
+    if (dropBtn) dropBtn.disabled = true;
+  }
+
+  // pose des membres, dans le repère du corps (la rotation est appliquée au dessin)
+  function pose(D, kind, tt) {
+    var bx = body.x, by = body.y, sh = by - D.torso, legLen = D.thigh + D.shin;
+    ORDER.forEach(function (k) {
+      var L = limbs[k], sd = L.side, ph = sd > 0 ? 0 : 1.7, x, y;
+      if (kind === 'air') {
+        // bras qui moulinent au-dessus de la tête, jambes qui pédalent
+        if (L.hand) { x = bx + sd * (D.shoulder + 16 * s + 12 * s * Math.sin(tt * 17 + ph)); y = sh - (D.upper + D.fore) * 0.7 + 14 * s * Math.cos(tt * 15 + ph); }
+        else { x = bx + sd * (D.hip + 12 * s + 9 * s * Math.sin(tt * 13 + ph)); y = by + legLen * 0.78 + 10 * s * Math.sin(tt * 16 + ph * 2); }
+      } else {
+        // étalé sur le tapis, bras et jambes en croix
+        if (L.hand) { x = bx + sd * (D.shoulder + 30 * s); y = sh + 4 * s; }
+        else { x = bx + sd * (D.hip + 20 * s); y = by + legLen * 0.92; }
+      }
+      L.end = { x: x, y: y };
+    });
+  }
+
+  function fallStep(dt, D, legLen, floorY, now) {
+    fall.t += dt;
+    var lieY = groundY - 6 * s;           // le bassin posé sur le tapis
+    if (fall.phase === 'air') {
+      fall.vy = Math.min(fall.vy + 2600 * dt, 4200);
+      body.y += fall.vy * dt;
+      body.x += (routeX(body.y) - body.x) * Math.min(1, dt * 2);
+      fall.ang = fall.spin * (Math.sin(fall.t * 3.2) * 0.45 + fall.t * 0.35);
+      pose(D, 'air', fall.t);
+      window.scrollTo(0, clamp(body.y - VH * 0.45, 0, H - VH));
+      if (body.y >= lieY - D.torso * 0.2) {
+        // impact
+        body.y = lieY; fall.phase = 'impact'; fall.t = 0;
+        fall.fromAng = fall.ang;
+        window.scrollTo(0, H - VH);
+        puff(body.x, groundY, 90, ['#ffffff', '#e8e4dc', '#d9d6cf']);
+        puff(body.x, groundY - 10 * s, 40);
+        var html = document.documentElement;
+        html.classList.remove('impact'); void html.offsetWidth; html.classList.add('impact');
+      }
+    } else if (fall.phase === 'impact') {
+      var k = clamp(fall.t / 0.18, 0, 1);
+      var lying = fall.spin * Math.PI / 2;
+      fall.ang = fall.fromAng + (lying - fall.fromAng) * (1 - Math.pow(1 - k, 3)) + (k >= 1 ? Math.sin(fall.t * 30) * 0.04 * Math.exp(-fall.t * 6) : 0);
+      body.y = lieY - Math.abs(Math.sin(Math.min(fall.t, 0.35) * 9)) * 14 * s * Math.exp(-fall.t * 8); // petit rebond
+      pose(D, 'lie', fall.t);
+      window.scrollTo(0, H - VH);
+      if (fall.t > 1.6) { fall.phase = 'up'; fall.t = 0; fall.fromAng = fall.ang; fall.fromY = body.y; }
+    } else {
+      // il se relève
+      var e = ease(clamp(fall.t / 0.7, 0, 1));
+      fall.ang = fall.fromAng * (1 - e);
+      body.y = fall.fromY + (floorY - fall.fromY) * e;
+      pose(D, e < 0.5 ? 'lie' : 'air', 0);
+      window.scrollTo(0, H - VH);
+      if (fall.t > 0.75) {
+        fall.active = false; fall.ang = 0;
+        document.documentElement.classList.remove('falling', 'impact');
+        if (dropBtn) dropBtn.disabled = false;
+        if (hint) hint.classList.remove('gone');
+        resetClimber();
+      }
+    }
+  }
+
+  // pendant la chute, la molette et le tactile ne font rien
+  ['wheel', 'touchmove'].forEach(function (ev) {
+    window.addEventListener(ev, function (e) { if (fall.active) e.preventDefault(); }, { passive: false });
+  });
+  window.addEventListener('keydown', function (e) {
+    if (fall.active && ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].indexOf(e.key) >= 0) e.preventDefault();
+  });
+  if (dropBtn) dropBtn.addEventListener('click', startFall);
 
   function start(L, want, dur) {
     if (want) L.goal = want; else L.goal = L.next || L.goal;
@@ -512,7 +607,7 @@
 
     // tête : elle regarde la prochaine prise
     var look = 0;
-    ORDER.forEach(function (k) { if (limbs[k].t < 1 && limbs[k].hand) look = (limbs[k].goal.x - body.x) * 0.12; });
+    ORDER.forEach(function (k) { if (!fall.active && limbs[k].t < 1 && limbs[k].hand) look = (limbs[k].goal.x - body.x) * 0.12; });
     var neckTop = at(N, D.neck, 0);
     var Hc = [neckTop[0] + ux * D.head + clamp(look, -5 * s, 5 * s), neckTop[1] + uy * D.head];
     seg(C.neck, N, neckTop, 8 * s);

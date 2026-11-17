@@ -263,6 +263,21 @@ strong { color: var(--ink); font-weight: 700; }
 .btn-main { background: var(--accent); border-color: var(--accent); color: #16181c; }
 .btn-main:hover { background: #16181c; border-color: #16181c; color: #f8f4ea; }
 .btn-ghost { border-style: dashed; }
+.btn-fall { border-color: #c0392b; color: #c0392b; }
+.btn-fall:hover { background: #c0392b; border-color: #c0392b; color: #fff; }
+.btn-fall:disabled { opacity: .5; cursor: default; }
+
+/* la chute : secousse à l'impact, tapis qui s'écrase */
+html.falling { scroll-behavior: auto; }
+html.impact .wall, html.impact .route, html.impact .stage { animation: shake .5s cubic-bezier(.36,.07,.19,.97); }
+html.impact .pad-a { animation: squash .6s cubic-bezier(.3,1.5,.5,1); transform-origin: 50% 100%; }
+@keyframes shake {
+  10%, 90% { transform: translate3d(-2px, 1px, 0); }
+  20%, 80% { transform: translate3d(4px, -2px, 0); }
+  30%, 50%, 70% { transform: translate3d(-7px, 3px, 0); }
+  40%, 60% { transform: translate3d(7px, -3px, 0); }
+}
+@keyframes squash { 0% { transform: scaleY(1); } 20% { transform: scale(1.06, .62); } 55% { transform: scale(.98, 1.08); } 100% { transform: none; } }
 :focus-visible { outline: 3px solid #f2c94c; outline-offset: 3px; }
 
 /* Sommet : relais */
