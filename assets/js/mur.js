@@ -141,7 +141,7 @@
   // ---------- construction du mur ----------
   function build() {
     W = document.documentElement.clientWidth;
-    VH = window.innerHeight;
+    VH = Math.max(1, window.innerHeight);
     mobile = W <= 760;
     s = mobile ? 0.82 : clamp(W / 950, 1.15, 1.7);
     axis = W * axisRatio();
@@ -333,7 +333,11 @@
   function seg(p, a, b, w) { p.setAttribute('d', 'M' + f(a[0]) + ' ' + f(a[1]) + 'L' + f(b[0]) + ' ' + f(b[1])); p.setAttribute('stroke-width', f(w)); }
 
   function frame(now) {
-    var dt = Math.min(0.04, (now - last) / 1000); last = now;
+    var dt = Math.min(0.04, Math.max(0, (now - last) / 1000)); last = now;
+    // fenêtre encore sans taille (onglet en arrière-plan) : on attend, sans rien calculer
+    if (window.innerHeight < 2 || document.documentElement.clientWidth < 2) { requestAnimationFrame(frame); return; }
+    if (VH < 2 || W < 2) { build(); resetClimber(); }
+    if (!isFinite(body.x) || !isFinite(body.y)) resetClimber();
     var sy = window.scrollY;
     var D = dims();
     var legLen = D.thigh + D.shin;
@@ -575,7 +579,7 @@
     clearTimeout(rt);
     rt = setTimeout(function () {
       var w = document.documentElement.clientWidth, vh = window.innerHeight;
-      if (w === lastW && Math.abs(vh - lastVH) < 140) { VH = vh; resizeCanvas(); return; }
+      if (w === lastW && Math.abs(vh - lastVH) < 140 && vh > 1) { VH = vh; resizeCanvas(); return; }
       var ratio = window.scrollY / Math.max(1, document.documentElement.scrollHeight - vh);
       build();
       window.scrollTo(0, Math.min(1, ratio) * (H - VH));
