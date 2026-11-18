@@ -8,6 +8,35 @@
   var SVGNS = 'http://www.w3.org/2000/svg';
   var WALL_METERS = 20;
 
+  // ---------- langue : le français est dans le HTML, l'anglais dans les attributs data-en ----------
+  var sheet = $('#cvSheet');
+  var CV_TITLE = 'CV — Raphaël Deroo';
+  var LANG_ATTRS = ['aria-label', 'title', 'alt', 'content', 'href', 'download'];
+  var T = {
+    fr: { copy: 'Copier', copied: 'Copié', subject: 'Contact depuis ton portfolio : ' },
+    en: { copy: 'Copy', copied: 'Copied', subject: 'Contact from your portfolio: ' }
+  };
+  var lang = 'fr';
+  function applyLang(l) {
+    lang = l;
+    document.documentElement.lang = l;
+    document.querySelectorAll('[data-en]').forEach(function (el) {
+      if (!('fr' in el.dataset)) el.dataset.fr = el.innerHTML;
+      el.innerHTML = el.dataset[l];
+    });
+    LANG_ATTRS.forEach(function (a) {
+      document.querySelectorAll('[data-en-' + a + ']').forEach(function (el) {
+        if (!el.hasAttribute('data-fr-' + a)) el.setAttribute('data-fr-' + a, el.getAttribute(a));
+        el.setAttribute(a, el.getAttribute('data-' + l + '-' + a));
+      });
+    });
+    if (sheet.open) document.title = CV_TITLE;
+  }
+  function savedLang() { try { return localStorage.getItem('lang'); } catch (e) { return null; } }
+  // ?lang=en sert à générer le PDF anglais sans toucher au choix mémorisé
+  var askedLang = new URLSearchParams(location.search).get('lang');
+  applyLang((askedLang || savedLang()) === 'en' ? 'en' : 'fr');
+
   var holdsEl = $('#holds');
   var defs = $('#hold-defs');
   var light = $('#light');
@@ -635,48 +664,67 @@
     var el = document.getElementById(id);
     if (!el) return;
     var top = el.offsetTop + Math.min(el.offsetHeight, VH * 1.6) / 2 - VH / 2;
+    // une fiche plus haute que l'écran s'affiche depuis son titre, sous la barre
+    var card = el.querySelector('.topo-card');
+    if (card) { var y = el.offsetTop + card.offsetTop; top = Math.min(y + card.offsetHeight / 2 - VH / 2, y - 84); }
     if (id === 'sommet') top = 0;
     if (id === 'depart') top = H;
     window.scrollTo({ top: top, behavior: smooth && !reduce ? 'smooth' : 'auto' });
   }
 
-  rails.forEach(function (a) {
-    a.addEventListener('click', function (e) { e.preventDefault(); goTo(a.dataset.target, true); history.replaceState(null, '', '#' + a.dataset.target); });
+  function jump(id) {
+    goTo(id, true);
+    history.replaceState(null, '', '#' + id);
+    document.getElementById(id).focus({ preventScroll: true });
+  }
+  document.querySelectorAll('[data-target]').forEach(function (a) {
+    a.addEventListener('click', function (e) { e.preventDefault(); jump(a.dataset.target); });
   });
   var skip = $('.skip');
-  if (skip) skip.addEventListener('click', function (e) { e.preventDefault(); goTo('sommet', true); });
+  if (skip) skip.addEventListener('click', function (e) { e.preventDefault(); jump('contact'); });
   $('#descend').addEventListener('click', function () { goTo('depart', true); history.replaceState(null, '', location.pathname); });
 
   document.querySelectorAll('.copy').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      var txt = btn.getAttribute('data-copy'), old = btn.textContent;
-      var done = function () { btn.textContent = 'Copié'; btn.classList.add('ok'); setTimeout(function () { btn.textContent = old; btn.classList.remove('ok'); }, 1500); };
+      var txt = btn.getAttribute('data-copy');
+      var done = function () { btn.textContent = T[lang].copied; $('#copyStatus').textContent = T[lang].copied; btn.classList.add('ok'); setTimeout(function () { btn.textContent = T[lang].copy; $('#copyStatus').textContent = ''; btn.classList.remove('ok'); }, 1500); };
       if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, function () {}); else done();
     });
   });
 
   // ---------- la fiche CV ----------
-  var sheet = $('#cvSheet');
   function openCV() {
-    if (!sheet) return;
-    var pdf = sheet.querySelector('.cv-pdf');
-    if (pdf && !pdf.src) pdf.src = pdf.getAttribute('data-src');
-    if (sheet.showModal) sheet.showModal(); else sheet.setAttribute('open', '');
+    if (sheet.open) return;
+    document.title = CV_TITLE;
+    sheet.showModal();
   }
-  function closeCV() { if (sheet.close) sheet.close(); else sheet.removeAttribute('open'); }
   document.querySelectorAll('[data-cv]').forEach(function (b) { b.addEventListener('click', openCV); });
-  if (sheet) {
-    sheet.querySelector('[data-close]').addEventListener('click', closeCV);
-    // un clic à côté de la feuille la ferme
-    sheet.addEventListener('click', function (e) { if (e.target === sheet) closeCV(); });
-  }
+  sheet.querySelector('[data-close]').addEventListener('click', function () { sheet.close(); });
+  // un clic à côté de la feuille la ferme
+  sheet.addEventListener('click', function (e) { if (e.target === sheet) sheet.close(); });
+  sheet.addEventListener('close', function () {
+    document.title = document.querySelector('title').dataset[lang];
+    if (location.hash === '#cv') history.replaceState(null, '', location.pathname + location.search);
+  });
+  window.addEventListener('hashchange', function () { if (location.hash === '#cv') openCV(); });
+
+  // ---------- bouton FR / EN ----------
+  document.querySelectorAll('[data-lang-toggle]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (fall.active) return;
+      var ratio = window.scrollY / Math.max(1, H - VH); // avant que la hauteur des fiches change
+      applyLang(lang === 'fr' ? 'en' : 'fr');
+      try { localStorage.setItem('lang', lang); } catch (e) { /* navigation privée : le choix ne sera pas retenu */ }
+      rebuild(ratio);
+    });
+  });
 
   // ---------- formulaire : ouvre la messagerie avec le message rempli ----------
   var form = $('#mailForm');
   if (form) form.addEventListener('submit', function (e) {
     e.preventDefault();
     var nom = form.elements.nom.value.trim(), msg = form.elements.message.value.trim();
-    var subject = 'Contact depuis ton portfolio' + (nom ? ' : ' + nom : '');
+    var subject = nom ? T[lang].subject + nom : T[lang].subject.replace(/\s*:\s*$/, '');
     var bodyTxt = msg + (nom ? '\n\n' + nom : '');
     window.location.href = 'mailto:derooraphael077@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyTxt);
   });
@@ -695,16 +743,18 @@
     Object.keys(limbs).forEach(function (n) { limbs[n].goal = null; limbs[n].end = null; limbs[n].t = 1; });
   }
 
+  function rebuild(ratio) {
+    build();
+    window.scrollTo(0, Math.min(1, ratio) * (H - VH));
+    resetClimber();
+  }
   var rt;
   window.addEventListener('resize', function () {
     clearTimeout(rt);
     rt = setTimeout(function () {
       var w = document.documentElement.clientWidth, vh = window.innerHeight;
       if (w === lastW && Math.abs(vh - lastVH) < 140 && vh > 1) { VH = vh; resizeCanvas(); return; }
-      var ratio = window.scrollY / Math.max(1, document.documentElement.scrollHeight - vh);
-      build();
-      window.scrollTo(0, Math.min(1, ratio) * (H - VH));
-      resetClimber();
+      rebuild(window.scrollY / Math.max(1, document.documentElement.scrollHeight - vh));
     }, 180);
   });
   window.addEventListener('scroll', onScroll, { passive: true });
@@ -712,6 +762,7 @@
   function boot() {
     build();
     var id = location.hash.slice(1);
+    if (id === 'cv') { openCV(); id = ''; }
     var place = function () {
       if (id && document.getElementById(id)) goTo(id, false); else window.scrollTo(0, H);
     };

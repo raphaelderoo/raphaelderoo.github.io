@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Raphaël Deroo — Le mur</title>
-  <meta name="description" content="Portfolio de Raphaël Deroo, étudiant en 3e année de BUT Informatique, spécialisation développement d'applications. Un mur d'escalade à grimper en scrollant vers le haut.">
-  <meta property="og:title" content="Raphaël Deroo — Le mur">
-  <meta property="og:description" content="Un portfolio à grimper : projets, compétences et contact de Raphaël Deroo.">
+  <title data-en="Raphaël Deroo — The wall">Raphaël Deroo — Le mur</title>
+  <meta name="description" content="Portfolio de Raphaël Deroo, étudiant en 3e année de BUT Informatique, spécialisation développement d'applications. Un mur d'escalade à grimper en scrollant vers le haut." data-en-content="Portfolio of Raphaël Deroo, third-year BUT Computer Science student specialising in application development. A climbing wall you scale by scrolling up.">
+  <meta property="og:title" content="Raphaël Deroo — Le mur" data-en-content="Raphaël Deroo — The wall">
+  <meta property="og:description" content="Un portfolio à grimper : projets, compétences et contact de Raphaël Deroo." data-en-content="A portfolio to climb: projects, skills and contact details of Raphaël Deroo.">
   <meta property="og:type" content="website">
   <meta name="theme-color" content="#b4b8bf">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M14 40c-4-12 6-26 20-27 13-1 22 10 18 22-3 10-14 16-24 14-7-1-12-4-14-9z' fill='%23ff6b4a'/%3E%3Ccircle cx='33' cy='32' r='5' fill='%2314161b'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Roboto:wght@700&display=swap">
   <link rel="stylesheet" href="assets/css/mur.css">
   <script>
     // On arrive au pied du mur : la page s'ouvre en bas.
@@ -22,7 +22,15 @@
 </head>
 <body>
 
-  <a class="skip" href="#sommet">Aller directement au sommet (contact)</a>
+  <a class="skip" href="#contact" data-en="Skip to contact">Aller directement au contact</a>
+
+  <!-- Barre d'accès rapide, visible partout sur le mur -->
+  <nav class="bar" aria-label="Accès rapide" data-en-aria-label="Quick access">
+    <button class="bar-item lang" type="button" data-lang-toggle aria-label="FR / EN : passer en anglais" data-en-aria-label="FR / EN: switch to French"><span data-l="fr">FR</span><span data-l="en">EN</span></button>
+    <button class="bar-item bar-cv" type="button" data-cv>CV</button>
+    <a class="bar-item" href="#contact" data-target="contact" data-en="Contact me">Me contacter</a>
+    <a class="bar-item" href="https://github.com/raphaelderoo" target="_blank" rel="noopener">GitHub</a>
+  </nav>
 
   <!-- Dégradés partagés des prises -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -41,22 +49,20 @@
   </svg>
   <canvas class="chalk" id="chalk" aria-hidden="true"></canvas>
 
-  <!-- Altimètre / topo -->
-  <nav class="topo" id="topo" aria-label="Sections du mur">
-    <button class="cv-link" type="button" data-cv>Mon CV</button>
-    <nav class="social" aria-label="Me retrouver"><a class="soc" href="https://www.linkedin.com/in/raphaelderoo-11b941341/" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.9 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8.5h4V23h-4V8.5zM8.5 8.5h3.8v1.98h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V23h-4v-6.6c0-1.57-.03-3.6-2.2-3.6-2.2 0-2.54 1.72-2.54 3.5V23h-4V8.5z"/></svg></a><a class="soc" href="https://github.com/raphaelderoo" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.45.11-3.02 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.18-1.49 3.15-1.18 3.15-1.18.62 1.57.23 2.73.11 3.02.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.15 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A10.52 10.52 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg></a><a class="soc" href="mailto:derooraphael077@gmail.com" aria-label="E-mail" title="derooraphael077@gmail.com"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h20a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm18.3 2H3.7L12 12.2 20.3 6zM3 8.24V18h18V8.24l-8.44 6.6a1 1 0 0 1-1.12 0L3 8.24z"/></svg></a></nav>
+  <!-- Altimètre et sommaire -->
+  <nav class="topo" id="topo" aria-label="Sections du mur" data-en-aria-label="Page sections">
     <div class="alt">
       <span class="alt-num" id="altNum">0,0</span>
       <span class="alt-unit">m</span>
     </div>
     <ol class="rail" id="rail">
-      <li><a href="#sommet" data-target="sommet"><b>6c</b><span>Sommet</span></a></li>
-    <li><a href="#contact" data-target="contact"><b>6b+</b><span>Me contacter</span></a></li>
-      <li><a href="#competences" data-target="competences"><b>6b</b><span>Compétences</span></a></li>
-      <li><a href="#projets" data-target="projets"><b>6a+</b><span>Projets</span></a></li>
-      <li><a href="#experience" data-target="experience"><b>5c</b><span>Expérience</span></a></li>
-      <li><a href="#qui" data-target="qui"><b>5a</b><span>Qui suis-je</span></a></li>
-      <li><a href="#depart" data-target="depart"><b>4</b><span>Départ</span></a></li>
+      <li><a href="#sommet" data-target="sommet"><span data-en="Summit">Sommet</span></a></li>
+      <li><a href="#contact" data-target="contact"><span>Contact</span></a></li>
+      <li><a href="#competences" data-target="competences"><span data-en="Skills">Compétences</span></a></li>
+      <li><a href="#projets" data-target="projets"><span data-en="Projects">Projets</span></a></li>
+      <li><a href="#experience" data-target="experience"><span data-en="Experience">Expérience</span></a></li>
+      <li><a href="#qui" data-target="qui"><span data-en="About me">Qui suis-je</span></a></li>
+      <li><a href="#depart" data-target="depart"><span data-en="Home">Accueil</span></a></li>
     </ol>
     <div class="rail-track" aria-hidden="true">
       <div class="rail-fill" id="railFill"></div>
@@ -64,10 +70,10 @@
   </nav>
 
   <!-- Le contenu est écrit du sol vers le sommet : la colonne est inversée à l'affichage.
-       Chaque fiche est une fiche de voie vissée au mur, avec son scotch de couleur et sa cotation. -->
+       Chaque fiche est vissée au mur, avec son scotch de couleur et son titre. -->
   <main class="route" id="route">
 
-    <section class="pitch pitch-start" id="depart" data-grade="4">
+    <section class="pitch pitch-start" id="depart" tabindex="-1">
       <div class="ground" aria-hidden="true">
         <div class="pad pad-a"></div>
         <div class="pad pad-b"></div>
@@ -76,105 +82,122 @@
       <div class="hero">
         <p class="hero-kicker">Portfolio</p>
         <h1 class="hero-title"><span>Raphaël</span><span>Deroo</span></h1>
-        <p class="hero-sub">Étudiant en 3ᵉ année de BUT Informatique, spécialisation développement d'applications. Et grimpeur.</p>
-        <div class="hero-cta"><button class="btn btn-main" type="button" data-cv>Voir mon CV</button><nav class="social social-inline" aria-label="Me retrouver"><a class="soc" href="https://www.linkedin.com/in/raphaelderoo-11b941341/" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.9 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8.5h4V23h-4V8.5zM8.5 8.5h3.8v1.98h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V23h-4v-6.6c0-1.57-.03-3.6-2.2-3.6-2.2 0-2.54 1.72-2.54 3.5V23h-4V8.5z"/></svg></a><a class="soc" href="https://github.com/raphaelderoo" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.45.11-3.02 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.18-1.49 3.15-1.18 3.15-1.18.62 1.57.23 2.73.11 3.02.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.15 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A10.52 10.52 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg></a><a class="soc" href="mailto:derooraphael077@gmail.com" aria-label="E-mail" title="derooraphael077@gmail.com"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h20a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm18.3 2H3.7L12 12.2 20.3 6zM3 8.24V18h18V8.24l-8.44 6.6a1 1 0 0 1-1.12 0L3 8.24z"/></svg></a></nav></div>
+        <p class="hero-sub" data-en="Third-year BUT Computer Science student, specialising in application development. And a climber.">Étudiant en 3ᵉ année de BUT Informatique, spécialisation développement d'applications. Et grimpeur.</p>
+        <div class="topo-card search" style="--tag:#f2c94c">
+          <p class="tape" data-en="Looking for an internship">Je recherche un stage</p>
+          <h2 data-en="Final-year internship in software development">Stage de fin d'études en développement</h2>
+          <dl class="search-facts">
+            <div><dt data-en="Start">Début</dt><dd data-en="8 March 2027">8 mars 2027</dd></div>
+            <div><dt data-en="Duration">Durée</dt><dd data-en="14 to 16 weeks">14 à 16 semaines</dd></div>
+            <div><dt data-en="Location">Lieu</dt><dd data-en="Based in Calais, mobile by train and public transport">Basé à Calais, mobile en train et transports en commun</dd></div>
+          </dl>
+          <div class="actions">
+            <a class="btn btn-main" href="#contact" data-target="contact" data-en="Contact me">Me contacter</a>
+            <button class="btn" type="button" data-cv data-en="View my CV">Voir mon CV</button>
+          </div>
+        </div>
         <p class="hero-hint" id="hint">
           <span class="hint-arrow" aria-hidden="true"></span>
-          <span>Scrolle <strong>vers le haut</strong> pour grimper</span>
+          <span data-en="Scroll <strong>up</strong> to climb">Scrolle <strong>vers le haut</strong> pour grimper</span>
         </p>
       </div>
     </section>
 
-    <section class="pitch" id="qui" data-grade="5a">
+    <section class="pitch" id="qui" tabindex="-1">
       <article class="topo-card side-r reveal" style="--tag:#f2c94c">
-        <header class="card-head"><span class="tape">5a</span><span class="card-route">Voie n°1</span></header>
-        <h2>Qui suis-je</h2>
-        <p class="lead">Je m'appelle Raphaël. Je suis en 3ᵉ année de BUT Informatique à l'IUT du Littoral, spécialisation développement d'applications, et j'aime construire des choses qui servent vraiment&nbsp;: une plateforme pour des lycéens, un chatbot qui parle SQL, une appli de messagerie.</p>
-        <p>En dehors du code, je grimpe. L'escalade m'a appris à lire une voie avant de partir, à avancer prise par prise, et à ne pas lâcher quand ça bloque. C'est à peu près comme ça que je code.</p>
-        <p>J'aime aussi expliquer ce que je fais&nbsp;: pendant mon stage, j'ai aidé des élèves en TP et corrigé des copies. Le reste du temps, je dessine, j'écoute de la musique, je cuisine, et je code pour le plaisir.</p>
-        <p class="note">Je cherche un stage à partir de <strong>mars 2027</strong>&nbsp;: 14 à 16 semaines, ou 8 semaines.</p>
+        <header class="card-head"><span class="tape" data-en="Profile">Profil</span></header>
+        <h2 data-en="About me">Qui suis-je</h2>
+        <p class="lead" data-en="My name is Raphaël. I am in my third year of a BUT in Computer Science at the IUT du Littoral, specialising in application development, and I like building things that are genuinely useful: a platform for high school students, a chatbot that speaks SQL, a messaging app.">Je m'appelle Raphaël. Je suis en 3ᵉ année de BUT Informatique à l'IUT du Littoral, spécialisation développement d'applications, et j'aime construire des choses qui servent vraiment&nbsp;: une plateforme pour des lycéens, un chatbot qui parle SQL, une appli de messagerie.</p>
+        <p data-en="Away from the code, I climb. Climbing taught me to read a route before setting off, to move forward one hold at a time, and not to let go when I get stuck. That is pretty much how I code.">En dehors du code, je grimpe. L'escalade m'a appris à lire une voie avant de partir, à avancer prise par prise, et à ne pas lâcher quand ça bloque. C'est à peu près comme ça que je code.</p>
+        <p data-en="I also enjoy explaining what I do: during my internship, I helped students in practical classes and marked papers. The rest of the time, I draw, listen to music, cook, and code for fun.">J'aime aussi expliquer ce que je fais&nbsp;: pendant mon stage, j'ai aidé des élèves en TP et corrigé des copies. Le reste du temps, je dessine, j'écoute de la musique, je cuisine, et je code pour le plaisir.</p>
       </article>
     </section>
 
-    <section class="pitch" id="experience" data-grade="5c">
+    <section class="pitch" id="experience" tabindex="-1">
       <article class="topo-card side-l reveal" style="--tag:#56ccf2">
-        <header class="card-head"><span class="tape">5c</span><span class="card-route">Voie n°2</span></header>
-        <h2>Expérience</h2>
-        <p class="xp-when">Avril – juin 2026 · 8 semaines</p>
-        <h3>Stagiaire développeur web &amp; assistant pédagogique</h3>
+        <header class="card-head"><span class="tape" data-en="Internship">Stage</span></header>
+        <h2 data-en="Experience">Expérience</h2>
+        <p class="xp-when" data-en="April – June 2026 · 8 weeks">Avril – juin 2026 · 8 semaines</p>
+        <h3 data-en="Web developer intern &amp; teaching assistant">Stagiaire développeur web &amp; assistant pédagogique</h3>
         <p class="xp-where">Lycée Pierre de Coubertin, Calais</p>
         <ul class="ticks">
-          <li>Conception et développement <strong>fullstack</strong> d'une plateforme web pédagogique&nbsp;: API REST en Node.js, TypeScript et Express, interface en Vue.js 3, base PostgreSQL avec Prisma.</li>
-          <li>Un <strong>éditeur Python</strong> qui tourne directement dans le navigateur (Pyodide, WebAssembly), et des cours en Markdown enrichi (KaTeX, highlight.js).</li>
-          <li>Côté pédagogie&nbsp;: aide aux élèves en TP, correction de copies, jury de grands oraux blancs et d'épreuves pratiques de NSI.</li>
+          <li data-en="Design and <strong>full-stack</strong> development of an educational web platform: REST API in Node.js, TypeScript and Express, Vue.js 3 interface, PostgreSQL database with Prisma.">Conception et développement <strong>fullstack</strong> d'une plateforme web pédagogique&nbsp;: API REST en Node.js, TypeScript et Express, interface en Vue.js 3, base PostgreSQL avec Prisma.</li>
+          <li data-en="A <strong>Python editor</strong> that runs directly in the browser (Pyodide, WebAssembly), and lessons in enriched Markdown (KaTeX, highlight.js).">Un <strong>éditeur Python</strong> qui tourne directement dans le navigateur (Pyodide, WebAssembly), et des cours en Markdown enrichi (KaTeX, highlight.js).</li>
+          <li data-en="On the teaching side: helping students in practical classes, marking papers, sitting on the jury for mock oral exams and NSI practical exams.">Côté pédagogie&nbsp;: aide aux élèves en TP, correction de copies, jury de grands oraux blancs et d'épreuves pratiques de NSI.</li>
         </ul>
         <p class="stack">Node.js · TypeScript · Express · Vue.js 3 · PostgreSQL · Prisma · Pyodide</p>
+        <p class="code-link code-private" data-en="Private code">Code privé</p>
       </article>
     </section>
 
-    <section class="pitch pitch-tall" id="projets" data-grade="6a+">
+    <section class="pitch pitch-tall" id="projets" tabindex="-1">
       <header class="topo-card pitch-title side-l reveal" style="--tag:#6fcf97">
-        <header class="card-head"><span class="tape">6a+</span><span class="card-route">Voie n°3</span></header>
-        <h2>Projets</h2>
-        <p>Quatre prises, quatre projets.</p>
+        <div class="card-head"><span class="tape" data-en="Selected work">Réalisations</span></div>
+        <h2 data-en="Projects">Projets</h2>
+        <p data-en="Four projects: AI, web, mobile and this portfolio.">Quatre projets&nbsp;: IA, web, mobile et ce portfolio.</p>
       </header>
 
       <article class="topo-card proj side-r reveal" style="--tag:#6fcf97">
-        <header class="card-head"><span class="tape">IA</span><span class="card-route">BUT 3 · équipe de 4</span></header>
+        <header class="card-head"><span class="tape" data-en="AI">IA</span><span class="card-route" data-en="BUT year 3 · team of 4">BUT 3 · équipe de 4</span></header>
         <h3>NaturSQL</h3>
-        <p>Pose une question en français, obtiens la réponse de la base de données. Un LLM local (Ollama) traduit la question en requête SQL sur une base MariaDB. J'ai développé l'authentification et la gestion de profil&nbsp;: mots de passe sécurisés et migration de schéma.</p>
+        <p data-en="Ask a question in French, get the answer from the database. A local LLM (Ollama) translates the question into an SQL query on a MariaDB database. I developed authentication and profile management: secure passwords and schema migration.">Pose une question en français, obtiens la réponse de la base de données. Un LLM local (Ollama) traduit la question en requête SQL sur une base MariaDB. J'ai développé l'authentification et la gestion de profil&nbsp;: mots de passe sécurisés et migration de schéma.</p>
         <p class="stack">Python · Gradio · Ollama · MariaDB · Docker</p>
+        <a class="code-link" href="https://github.com/ChtiAxel/appli_intelligente" target="_blank" rel="noopener" data-en="NaturSQL code on GitHub">Code de NaturSQL sur GitHub</a>
       </article>
 
       <article class="topo-card proj side-l reveal" style="--tag:#bb6bd9">
-        <header class="card-head"><span class="tape">Web</span><span class="card-route">BUT 2 · en équipe</span></header>
+        <header class="card-head"><span class="tape">Web</span><span class="card-route" data-en="BUT year 2 · team project">BUT 2 · en équipe</span></header>
         <h3>Chess Predict</h3>
-        <p>Prédire l'issue d'une partie d'échecs à partir de l'historique des deux joueurs. J'ai fait le front-end&nbsp;: les graphiques de probabilités (Chart.js) et le visualiseur de parties (chess.js), branchés sur une API Node.js et Express.</p>
+        <p data-en="Predicting the outcome of a chess game from both players' history. I built the front end: the probability charts (Chart.js) and the game viewer (chess.js), connected to a Node.js and Express API.">Prédire l'issue d'une partie d'échecs à partir de l'historique des deux joueurs. J'ai fait le front-end&nbsp;: les graphiques de probabilités (Chart.js) et le visualiseur de parties (chess.js), branchés sur une API Node.js et Express.</p>
         <p class="stack">PHP · TypeScript · Node.js · Chart.js · PostgreSQL</p>
+        <a class="code-link" href="https://github.com/roux2scours/SAE-WEBAPI-GROUPE-3-CHESS-PREDICT" target="_blank" rel="noopener" data-en="Chess Predict code on GitHub">Code de Chess Predict sur GitHub</a>
       </article>
 
       <article class="topo-card proj side-r reveal" style="--tag:#56ccf2">
-        <header class="card-head"><span class="tape">Mobile</span><span class="card-route">BUT · équipe de 3</span></header>
+        <header class="card-head"><span class="tape">Mobile</span><span class="card-route" data-en="BUT · team of 3">BUT · équipe de 3</span></header>
         <h3>PrivateMessaging</h3>
-        <p>Une messagerie privée sur mobile&nbsp;: on s'associe en scannant un QR code. J'ai fait l'écran d'accueil, la navigation entre les pages (go_router) et l'écran de discussion, qui envoie et reçoit les messages via une API REST.</p>
-        <p class="stack">Flutter · Dart · go_router · API REST</p>
+        <p data-en="A private messaging app for mobile: users pair up by scanning a QR code. I built the home screen, the navigation between pages (go_router) and the chat screen, which sends and receives messages through a REST API.">Une messagerie privée sur mobile&nbsp;: on s'associe en scannant un QR code. J'ai fait l'écran d'accueil, la navigation entre les pages (go_router) et l'écran de discussion, qui envoie et reçoit les messages via une API REST.</p>
+        <p class="stack">Flutter · Dart · go_router · <span data-en="REST API">API REST</span></p>
+        <p class="code-link code-private" data-en="Private code">Code privé</p>
       </article>
 
       <article class="topo-card proj side-l reveal" style="--tag:#ff6b4a">
-        <header class="card-head"><span class="tape">Perso</span><span class="card-route">Le site que tu grimpes</span></header>
-        <h3>Ce mur</h3>
-        <p>Mon portfolio, sans framework&nbsp;: HTML, CSS et JavaScript. Les prises sont générées, le grimpeur calcule la position de ses bras et de ses jambes à chaque image, et la corde passe dans les dégaines au fil de la montée.</p>
+        <header class="card-head"><span class="tape" data-en="Personal">Perso</span><span class="card-route" data-en="The site you are climbing">Le site que tu grimpes</span></header>
+        <h3 data-en="This wall">Ce mur</h3>
+        <p data-en="My portfolio, with no framework: HTML, CSS and JavaScript. The holds are generated, the climber works out the position of its arms and legs on every frame, and the rope runs through the quickdraws as you climb.">Mon portfolio, sans framework&nbsp;: HTML, CSS et JavaScript. Les prises sont générées, le grimpeur calcule la position de ses bras et de ses jambes à chaque image, et la corde passe dans les dégaines au fil de la montée.</p>
         <p class="stack">HTML · CSS · JavaScript · SVG · Canvas</p>
+        <a class="code-link" href="https://github.com/raphaelderoo/raphaelderoo.github.io" target="_blank" rel="noopener" data-en="Code for this wall on GitHub">Code de ce mur sur GitHub</a>
       </article>
     </section>
 
-    <section class="pitch" id="competences" data-grade="6b">
+    <section class="pitch" id="competences" tabindex="-1">
       <article class="topo-card logbook side-r reveal" style="--tag:#bb6bd9">
-        <header class="card-head"><span class="tape">6b</span><span class="card-route">Voie n°4</span></header>
-        <h2>Compétences</h2>
-        <p class="logbook-intro">Mon carnet de voies&nbsp;: une couleur de prise par famille, comme en salle.</p>
+        <header class="card-head"><span class="tape" data-en="Technical skills">Savoir-faire</span></header>
+        <h2 data-en="Skills">Compétences</h2>
+        <p class="logbook-intro" data-en="The technologies I use, grouped by area.">Les technologies que j'utilise, classées par domaine.</p>
         <dl class="log">
-          <div class="log-row" style="--c:#2d9cdb"><dt>Langages</dt><dd>Python, TypeScript, JavaScript, Java, C, C++, F#, PHP, Dart, HTML / CSS</dd></div>
-          <div class="log-row" style="--c:#27ae60"><dt>Web &amp; mobile</dt><dd>Node.js, Express, Vue.js 3, Prisma, API REST, Flutter, Gradio</dd></div>
-          <div class="log-row" style="--c:#f2c94c"><dt>Données</dt><dd>PostgreSQL, MariaDB, SQL, MongoDB, Redis, Neo4j</dd></div>
-          <div class="log-row" style="--c:#9b51e0"><dt>Outils</dt><dd>Git et GitHub, Docker, tests unitaires, méthode agile (sprints), VS Code</dd></div>
-          <div class="log-row" style="--c:#ff6b4a"><dt>IA</dt><dd>LLM en local (Ollama), réseaux de neurones, PyTorch</dd></div>
-          <div class="log-row" style="--c:#2f3542"><dt>Réseau</dt><dd>TCP/IP, IPv4 / IPv6, VLAN, routage statique et dynamique, Cisco</dd></div>
-          <div class="log-row" style="--c:#f4f4f4"><dt>Langues</dt><dd>Anglais B2, espagnol B2</dd></div>
+          <div class="log-row" style="--c:#2d9cdb"><dt data-en="Languages">Langages</dt><dd>Python, TypeScript, JavaScript, Java, C, C++, F#, PHP, Dart, HTML / CSS</dd></div>
+          <div class="log-row" style="--c:#27ae60"><dt data-en="Web &amp; mobile">Web &amp; mobile</dt><dd data-en="Node.js, Express, Vue.js 3, Prisma, REST APIs, Flutter, Gradio">Node.js, Express, Vue.js 3, Prisma, API REST, Flutter, Gradio</dd></div>
+          <div class="log-row" style="--c:#f2c94c"><dt data-en="Data">Données</dt><dd>PostgreSQL, MariaDB, SQL, MongoDB, Redis, Neo4j</dd></div>
+          <div class="log-row" style="--c:#9b51e0"><dt data-en="Tools">Outils</dt><dd data-en="Git and GitHub, Docker, unit testing, agile method (sprints), VS Code">Git et GitHub, Docker, tests unitaires, méthode agile (sprints), VS Code</dd></div>
+          <div class="log-row" style="--c:#ff6b4a"><dt data-en="AI">IA</dt><dd data-en="Local LLMs (Ollama), neural networks, PyTorch">LLM en local (Ollama), réseaux de neurones, PyTorch</dd></div>
+          <div class="log-row" style="--c:#2f3542"><dt data-en="Networking">Réseau</dt><dd data-en="TCP/IP, IPv4 / IPv6, VLAN, static and dynamic routing, Cisco">TCP/IP, IPv4 / IPv6, VLAN, routage statique et dynamique, Cisco</dd></div>
+          <div class="log-row" style="--c:#f4f4f4"><dt data-en="Languages spoken">Langues</dt><dd data-en="English B2, Spanish B2">Anglais B2, espagnol B2</dd></div>
         </dl>
       </article>
     </section>
 
-    <section class="pitch" id="contact" data-grade="6b+">
+    <section class="pitch" id="contact" tabindex="-1">
       <article class="topo-card side-r reveal" style="--tag:#56ccf2">
-        <header class="card-head"><span class="tape">6b+</span><span class="card-route">Voie n°5</span></header>
-        <h2>Me contacter</h2>
-        <p class="lead">Un stage, un projet, une question&nbsp;? Écris-moi, je réponds vite.</p>
+        <header class="card-head"><span class="tape">Contact</span></header>
+        <h2 data-en="Contact me">Me contacter</h2>
+        <p class="lead" data-en="An internship, a project, a question? Write to me, I reply quickly.">Un stage, un projet, une question&nbsp;? Écris-moi, je réponds vite.</p>
+        <p class="sr" role="status" id="copyStatus"></p>
         <div class="contacts">
           <div class="contact">
-            <span class="contact-label">E-mail</span>
+            <span class="contact-label" data-en="Email">E-mail</span>
             <a class="contact-value" href="mailto:derooraphael077@gmail.com">derooraphael077@gmail.com</a>
-            <button class="copy" type="button" data-copy="derooraphael077@gmail.com">Copier</button>
+            <button class="copy" type="button" data-copy="derooraphael077@gmail.com" aria-label="Copier l'adresse e-mail" data-en-aria-label="Copy the email address" data-en="Copy">Copier</button>
           </div>
           <div class="contact">
             <span class="contact-label">LinkedIn</span>
@@ -186,25 +209,25 @@
           </div>
         </div>
         <form class="mail-form" id="mailForm">
-          <p class="form-title">Ou laisse-moi un message</p>
-          <label>Ton nom<input name="nom" type="text" autocomplete="name" required></label>
-          <label>Ton message<textarea name="message" rows="4" required></textarea></label>
-          <button class="btn btn-main" type="submit">Envoyer par e-mail</button>
-          <p class="form-note">Le bouton ouvre ta messagerie avec le message déjà rempli.</p>
+          <p class="form-title" data-en="Or leave me a message">Ou laisse-moi un message</p>
+          <label><span data-en="Your name">Ton nom</span><input name="nom" type="text" autocomplete="name" required></label>
+          <label><span data-en="Your message">Ton message</span><textarea name="message" rows="4" required></textarea></label>
+          <button class="btn btn-main" type="submit" data-en="Send by email">Envoyer par e-mail</button>
+          <p class="form-note" data-en="The button opens your email app with the message already filled in.">Le bouton ouvre ta messagerie avec le message déjà rempli.</p>
         </form>
       </article>
     </section>
 
-    <section class="pitch pitch-top" id="sommet" data-grade="6c">
+    <section class="pitch pitch-top" id="sommet" tabindex="-1">
       <div class="anchor" aria-hidden="true"><span></span><span></span></div>
       <article class="topo-card summit side-r reveal" style="--tag:#ff6b4a">
-        <header class="card-head"><span class="tape">6c</span><span class="card-route">Sommet · 20 m</span></header>
-        <h2>Tu es au sommet&nbsp;!</h2>
-        <p class="lead">Merci d'avoir grimpé jusqu'ici. Maintenant, il faut redescendre&nbsp;: à pied, ou par le chemin le plus court.</p>
+        <header class="card-head"><span class="tape" data-en="End of the climb">Fin du parcours</span><span class="card-route" data-en="Summit · 20 m">Sommet · 20 m</span></header>
+        <h2 data-en="You made it to the top!">Tu es au sommet&nbsp;!</h2>
+        <p class="lead" data-en="Thanks for climbing all the way up here. Now you have to get back down: on foot, or by the shortest route.">Merci d'avoir grimpé jusqu'ici. Maintenant, il faut redescendre&nbsp;: à pied, ou par le chemin le plus court.</p>
         <div class="actions">
-          <button class="btn btn-fall" type="button" id="drop">Lâcher prise</button>
-          <button class="btn btn-ghost" type="button" id="descend">Redescendre ↓</button>
-          <button class="btn" type="button" data-cv>Voir mon CV</button>
+          <button class="btn btn-fall" type="button" id="drop" data-en="Let go">Lâcher prise</button>
+          <button class="btn btn-ghost" type="button" id="descend" data-en="Climb down ↓">Redescendre ↓</button>
+          <button class="btn" type="button" data-cv data-en="View my CV">Voir mon CV</button>
         </div>
       </article>
     </section>
@@ -214,15 +237,97 @@
   <dialog class="cv-sheet" id="cvSheet" aria-labelledby="cvTitle">
     <div class="cv-paper">
       <header class="cv-head">
-        <h2 id="cvTitle">Mon CV</h2>
+        <h2 id="cvTitle" data-en="My CV">Mon CV</h2>
         <div class="cv-actions">
-          <a class="btn btn-main" href="assets/cv/CV_Raphael_Deroo.pdf" download="CV_Raphael_Deroo.pdf">Télécharger</a>
-          <a class="btn" href="assets/cv/CV_Raphael_Deroo.pdf" target="_blank" rel="noopener">Plein écran</a>
-          <button class="btn cv-close" type="button" data-close aria-label="Fermer">✕</button>
+          <button class="btn lang" type="button" data-lang-toggle aria-label="FR / EN : passer en anglais" data-en-aria-label="FR / EN: switch to French"><span data-l="fr">FR</span><span data-l="en">EN</span></button>
+          <a class="btn btn-main" href="assets/cv/CV_Raphael_Deroo.pdf" download="CV_Raphael_Deroo.pdf" data-en-href="assets/cv/CV_Raphael_Deroo_EN.pdf" data-en-download="CV_Raphael_Deroo_EN.pdf" data-en="Download PDF">Télécharger le PDF</a>
+          <button class="btn cv-close" type="button" data-close aria-label="Fermer" data-en-aria-label="Close">✕</button>
         </div>
       </header>
-      <div class="cv-view">
-        <img class="cv-img" src="assets/cv/CV_Raphael_Deroo.png" alt="CV de Raphaël Deroo : formation, expérience, projets et compétences" loading="lazy" width="1655" height="2340">
+      <div class="cv-view" tabindex="0" role="region" aria-labelledby="cvTitle">
+        <article class="cv-doc">
+          <div class="cv-side">
+            <img class="cv-photo" src="assets/cv/photo.jpg" alt="Photo de Raphaël Deroo" data-en-alt="Photo of Raphaël Deroo" width="451" height="451">
+
+            <h3 class="cv-pill">Contact</h3>
+            <ul class="cv-contact">
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h20a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm18.3 2H3.7L12 12.2 20.3 6zM3 8.24V18h18V8.24l-8.44 6.6a1 1 0 0 1-1.12 0L3 8.24z"/></svg><a href="mailto:derooraphael077@gmail.com">derooraphael077@gmail.com</a></li>
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.45.11-3.02 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.18-1.49 3.15-1.18 3.15-1.18.62 1.57.23 2.73.11 3.02.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.15 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A10.52 10.52 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg><a href="https://github.com/raphaelderoo">https://github.com/raphaelderoo</a></li>
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.9 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8.5h4V23h-4V8.5zM8.5 8.5h3.8v1.98h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V23h-4v-6.6c0-1.57-.03-3.6-2.2-3.6-2.2 0-2.54 1.72-2.54 3.5V23h-4V8.5z"/></svg><a href="https://www.linkedin.com/in/raphaelderoo-11b941341/">https://www.linkedin.com/in/raphaelderoo-11b941341/</a></li>
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a11 11 0 1 0 0 22 11 11 0 0 0 0-22zm8.9 10h-4a17 17 0 0 0-1.5-6.6A9 9 0 0 1 20.9 11zM12 3.1c1 1.2 2.7 4 2.9 7.9H9.100c.2-3.900 1.900-6.700 2.900-7.900zM3.100 13h4a17 17 0 0 0 1.500 6.600A9 9 0 0 1 3.100 13zm4-2h-4a9 9 0 0 1 5.500-6.600A17 17 0 0 0 7.100 11zM12 20.900c-1-1.200-2.700-4-2.900-7.900h5.800c-.2 3.900-1.900 6.700-2.900 7.900zm3.400-1.300a17 17 0 0 0 1.500-6.600h4a9 9 0 0 1-5.500 6.600z"/></svg><a href="https://raphaelderoo.github.io">https://raphaelderoo.github.io</a></li>
+            </ul>
+
+            <h3 class="cv-pill" data-en="Skills">Compétences</h3>
+            <ul class="cv-list">
+              <li><b data-en="Languages:">Langages :</b> Python, Java, C++, C, F#, PHP, HTML, CSS, JS, TypeScript</li>
+              <li><b data-en="Frameworks:">Frameworks :</b> Vue.js, Symfony, Node.js, Express</li>
+              <li><b data-en="Tools:">Outils :</b> GitHub, VS Code, Docker, Claude Code</li>
+              <li><b data-en="Databases:">Bases de données :</b> PostgreSQL, MariaDB</li>
+              <li><b data-en="Networking:">Réseau :</b> <span data-en="TCP/IP model, IPv4/IPv6, VLAN, static and dynamic routing, switch and router configuration (Cisco)">Modèle TCP/IP, IPv4/IPv6, VLAN, routage statique et dynamique, configuration de switchs et routeurs (Cisco)</span></li>
+              <li><b data-en="Soft skills:">Soft skills :</b> <span data-en="Teaching / Good interpersonal skills, autonomy, flexibility">Pédagogie / Bon relationnel, autonomie, flexibilité</span></li>
+            </ul>
+
+            <h3 class="cv-pill" data-en="Interests">Centres d’intérêt</h3>
+            <div class="cv-plain">
+              <p><b data-en="Team sports:">Sports collectifs :</b> <span data-en="Basketball, volleyball">Basketball, volleyball</span></p>
+              <p><b data-en="Individual sports:">Sports individuels :</b> <span data-en="Wrestling, climbing">Lutte, escalade</span></p>
+              <p><b data-en="Creative hobbies:">Loisirs créatifs :</b> <span data-en="Drawing (art in general), music">Dessin (l’art en général), musique</span></p>
+            </div>
+
+            <h3 class="cv-pill" data-en="Languages">Langues</h3>
+            <div class="cv-plain">
+              <p><b data-en="English: B2">Anglais : B2</b></p>
+              <p><b data-en="Spanish: B2">Espagnol : B2</b></p>
+            </div>
+          </div>
+
+          <div class="cv-main">
+            <p class="cv-name">Raphaël Deroo</p>
+            <p class="cv-pitch" data-en="For the third year of my Bachelor of Technology (BUT) in Computer Science, I am looking for a 14 to 16-week internship starting on 8 March 2027.">Pour la 3e année de mon Bachelor universitaire de technologie en informatique, je suis à la recherche d’un stage de 14 à 16 semaines à compter du 8 mars 2027.</p>
+
+            <h3 class="cv-pill" data-en="Education">Formations</h3>
+            <div class="cv-block">
+              <div class="cv-entry">
+                <p><b data-en="BUT in Computer Science — Application development track: design, development, validation">BUT Informatique — Parcours Réalisation d'applications : conception, développement, validation</b></p>
+                <p><i data-en="IUT du Littoral Côte d'Opale, Calais — September 2024 – June 2027 (3<sup>rd</sup> year in progress)">IUT du Littoral Côte d'Opale, Calais — Septembre 2024 – Juin 2027 (3<sup>e</sup> année en cours)</i></p>
+                <p data-en="Programme focused on software development: object-oriented programming, algorithms, databases and SQL, web development (PHP, TypeScript, Node.js), mobile development (Flutter/Dart), Python, quality and testing, Docker containerisation and team project management with Git.">Formation centrée sur le développement logiciel : programmation orientée objet, algorithmique, bases de données et SQL, développement web (PHP, TypeScript, Node.js), développement mobile (Flutter/Dart), Python, qualité et tests, conteneurisation Docker et gestion de projet en équipe avec Git.</p>
+              </div>
+              <div class="cv-entry">
+                <p><b data-en="General baccalaureate — Majors in Mathematics and Digital and Computer Science (NSI), with “Bien” honours">Baccalauréat général — Spécialités Mathématiques et Numérique et Sciences Informatiques (NSI) mention Bien</b></p>
+                <p>Lycée Pierre de Coubertin, Calais — 2024</p>
+              </div>
+            </div>
+
+            <h3 class="cv-pill" data-en="Professional experience">Expérience professionnelle</h3>
+            <div class="cv-block">
+              <div class="cv-entry">
+                <p><b data-en="Web Developer Intern &amp; Teaching Assistant">Stagiaire Développeur Web &amp; Assistant Pédagogique</b></p>
+                <p><i data-en="Lycée Pierre de Coubertin — Calais | April – June 2026 | 8 weeks">Lycée Pierre de Coubertin — Calais | Avril – Juin 2026 | 8 semaines</i></p>
+                <ul class="cv-list">
+                  <li data-en="Design and full-stack development of an educational web platform: Node.js/TypeScript/Express REST API, Vue.js 3 front end, PostgreSQL database with Prisma 7">Conception et développement fullstack d'une plateforme web pédagogique : API REST Node.js/TypeScript/Express, frontend Vue.js 3, base de données PostgreSQL avec Prisma 7</li>
+                  <li data-en="Integration of an interactive Python editor (Pyodide/WebAssembly) and rendering of lessons in enriched Markdown (KaTeX, highlight.js)">Intégration d'un éditeur Python interactif (Pyodide/WebAssembly) et rendu de cours Markdown enrichi (KaTeX, highlight.js)</li>
+                  <li data-en="Involvement in teaching activities: marking papers, helping students in practical classes, sitting on the jury for mock oral exams and mock NSI practical exams">Participation aux activités pédagogiques : correction de copies, aide aux élèves en TP, jury de grands oraux blancs et d’épreuves pratiques blanches de NSI</li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="cv-pill cv-pill-center" data-en="Projects">Projets</h3>
+            <div class="cv-block">
+              <div class="cv-entry">
+                <p><b data-en="NaturSQL — Web application for querying a database in natural language">NaturSQL — Application web d'interrogation d’une base de données en langage naturel</b></p>
+                <p data-en="Python/Gradio development of the authentication and profile management of an application for querying a MariaDB database in French through an LLM (Ollama), with secure password handling, schema migration, Docker containerisation and Git versioning">Développement en Python/Gradio de l'authentification et de la gestion de profil d'une application permettant d'interroger en français une base de données MariaDB via un LLM (Ollama), avec gestion sécurisée des mots de passe, migration de schéma, conteneurisation Docker et versionnage Git</p>
+              </div>
+              <div class="cv-entry">
+                <p><b data-en="Chess Predict — Web application for predicting chess games">Chess Predict — Application web de prédiction de parties d'échecs</b></p>
+                <p data-en="PHP and TypeScript development of the front end of an application that predicts the outcome of a match between chess players from their history. Probability charts with Chart.js and game viewer with chess.js, connected to a Node.js/Express API and PostgreSQL, with Docker and Git.">Développement en PHP et TypeScript du front-end d'une application qui prédit l'issue d'un affrontement entre joueurs d'échecs à partir de leur historique. Graphiques de probabilités avec Chart.js et visualiseur de parties avec chess.js, reliés à une API Node.js/Express et PostgreSQL, avec Docker et Git.</p>
+              </div>
+              <div class="cv-entry">
+                <p><b data-en="PrivateMessaging — Private messaging mobile application">PrivateMessaging — Application mobile de messagerie privée</b></p>
+                <p data-en="Flutter/Dart development of a messaging application where users pair up by scanning a QR code. Design of the home screen and page navigation (go_router), then of the chat screen for sending and receiving messages through a REST API. Project versioned with Git.">Développement en Flutter/Dart d'une application de messagerie où les utilisateurs s'associent en scannant un QR code. Conception de l'écran d'accueil et de la navigation entre les pages (go_router), puis de l'écran de discussion permettant d'envoyer et de recevoir des messages via une API REST. Projet versionné sous Git.</p>
+              </div>
+            </div>
+          </div>
+        </article>
       </div>
     </div>
   </dialog>

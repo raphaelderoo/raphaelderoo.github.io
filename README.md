@@ -10,8 +10,8 @@ Site statique (HTML/CSS/JS, sans framework ni build).
 index.html            le mur (contenu écrit du sol vers le sommet, affiché en colonne inversée)
 assets/css/mur.css    styles du mur
 assets/js/mur.js      prises générées, grimpeur (cinématique inverse), corde, magnésie, altimètre
-cv.html               visionneuse du CV (utilise encore style.css et main.js)
-assets/cv/            CV en PDF + aperçu PNG
+cv.html               redirection vers index.html#cv (ancienne adresse du CV)
+assets/cv/            photo du CV et PDF générés (français et anglais)
 ```
 
 ## Comment ça marche
@@ -22,6 +22,18 @@ assets/cv/            CV en PDF + aperçu PNG
   par cinématique inverse à deux segments.
 - La corde part du baudrier et passe dans les dégaines déjà dépassées.
 - `prefers-reduced-motion` coupe les animations.
+
+## Langues
+Le français est écrit dans le HTML. L'anglais est à côté, dans l'attribut `data-en` pour le texte
+et dans `data-en-aria-label`, `data-en-href`, etc. pour les attributs. Le choix est gardé dans `localStorage`.
+
+## Régénérer les PDF du CV
+Le CV est écrit en HTML dans la fiche `#cvSheet` de `index.html`. Après une modification :
+
+```
+chrome --headless --no-pdf-header-footer --virtual-time-budget=8000 --print-to-pdf=assets/cv/CV_Raphael_Deroo.pdf "file:///CHEMIN/index.html?lang=fr#cv"
+chrome --headless --no-pdf-header-footer --virtual-time-budget=8000 --print-to-pdf=assets/cv/CV_Raphael_Deroo_EN.pdf "file:///CHEMIN/index.html?lang=en#cv"
+```
 
 ## Voir le site en local
 
