@@ -55,6 +55,7 @@ img, svg { display: block; }
 }
 .bar-item:hover { background: #333842; }
 .bar-cv { background: var(--accent); color: #16181c; }
+.bar-ico svg { display: none; width: 20px; height: 20px; fill: currentColor; }
 .bar-cv:hover { background: #ff8466; }
 .lang { display: inline-flex; align-items: center; gap: 3px; }
 .bar-item.lang { padding: 0 7px; }
@@ -475,6 +476,10 @@ html.impact .pad-a { animation: squash .6s cubic-bezier(.3,1.5,.5,1); transform-
   .bar { left: 0; right: 0; top: 0; padding: 5px 6px; gap: 1px; border-width: 0 0 1px; border-radius: 0; }
   .bar-item { padding: 0 8px; font-size: 13px; }
   .bar-item.lang { padding: 0 2px; }
+  /* GitHub et LinkedIn passent en icônes pour tenir à côté de l'altimètre */
+  .bar-ico { justify-content: center; min-width: 44px; padding: 0; }
+  .bar-ico svg { display: block; }
+  .bar-txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .lang span { padding: 5px 4px; }
   .topo { right: 6px; top: 11px; transform: none; z-index: 8; }
   .rail, .rail-track { display: none; }
