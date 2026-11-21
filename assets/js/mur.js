@@ -13,7 +13,7 @@
   var CV_TITLE = 'CV — Raphaël Deroo';
   var LANG_ATTRS = ['aria-label', 'title', 'alt', 'content', 'href', 'download'];
   var T = {
-    fr: { copy: 'Copier', copied: 'Copié', subject: 'Contact depuis ton portfolio : ' },
+    fr: { copy: 'Copier', copied: 'Copié', subject: 'Contact depuis votre portfolio : ' },
     en: { copy: 'Copy', copied: 'Copied', subject: 'Contact from your portfolio: ' }
   };
   var lang = 'fr';
@@ -773,6 +773,8 @@
     requestAnimationFrame(function (t) { last = t; frame(t); });
   }
 
+  // au pied du mur tout de suite, sans attendre les polices (première visite, réseau lent)
+  if (!location.hash) window.scrollTo(0, document.documentElement.scrollHeight);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(boot);
   else window.addEventListener('load', boot);
 })();
